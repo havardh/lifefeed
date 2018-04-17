@@ -1,6 +1,8 @@
 import React from "react";
 import exif from "exif-js";
 import exif2css from "exif2css";
+import rotate from "./RotateImage";
+
 
 const modalStyle = {
   position: "fixed",
@@ -72,25 +74,9 @@ class Preview extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      src: '',
-      css: {},
-    }
+    this.state = {src: ''};
 
     const {file} = props;
-    const that = this;
-    exif.getData(file, function() {
-      const orientation = exif.getTag(this, "Orientation");
-      const exifcss = exif2css(orientation);
-
-      const css = {
-        transform: exifcss.transform,
-        transformOrigin: exifcss['transform-origin']
-      }
-
-      that.setState({css});
-    });
-
     const fileReader = new FileReader();
 
     fileReader.onload = () => {
@@ -101,17 +87,12 @@ class Preview extends React.Component {
 
   render() {
     const {file} = this.props;
-    const {src, css} = this.state;
-
-    const style = {
-      ...previewImageStyle,
-      ...css
-    };
+    const {src} = this.state;
 
     return (
       <div style={previewStyle}>
         <span style={previewLabelStyle}>{ellipsis(file.name)}</span>
-        <img style={style} src={src} />
+        <img style={previewImageStyle} src={src} />
       </div>);
   }
 
@@ -121,36 +102,48 @@ class AddItem extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {files: []}
+    this.state = {
+      files: [],
+      uploading: true,
+      failed: false
+    }
   }
 
   onUpload = () => {
     const formData = new FormData();
-
     for (let file of this.state.files) {
-      if (!file.type.match('image.*')) {
-        throw new Error("not an image: " + file.name);
-      }
-
-      formData.append('images[]', file, file.name);
+      formData.append('files[]', file, file.name);
     }
 
+    this.setState({uploading: true, failed: false});
     fetch("/api/feed/image", {
       method: "POST",
       body: formData
     }).then(result => {
-      console.log(result);
+      this.setState({uploading: false});
+      if (result.status === 200) {
+        this.props.onClose({shouldFetch: true});
+      } else {
+        this.setState({failed: true, debug: result});
+      }
     });
   }
 
   onChange = (e) => {
     const {files} = e.target;
-    this.setState({files});
+
+    const promises = [];
+    for (let file of files) {
+      promises.push(rotate(file));
+    }
+    Promise.all(promises)
+      .then(files => this.setState({files})
+    );
   }
 
   render() {
     const {onClose} = this.props;
-    const {files} = this.state;
+    const {files, uploading, failed} = this.state;
 
     return (
       <div style={modalStyle}>
@@ -160,6 +153,7 @@ class AddItem extends React.Component {
           multiple
           onChange={this.onChange}
         />
+
         <div style={previewsStyle}>
           {toArray(files).map(file => (<Preview key={file.name} file={file}/>))}
         </div>

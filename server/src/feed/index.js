@@ -7,6 +7,7 @@ import jpegAutorotate from "jpeg-autorotate";
 import async from "async";
 
 const feed = express();
+
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './files/')
@@ -17,7 +18,11 @@ var storage = multer.diskStorage({
     });
   }
 });
-var upload = multer({ storage: storage });
+
+var upload = multer({
+  storage: storage,
+  limits: { fieldSize: 25 * 1024 * 1024 }
+});
 
 const store = [];
 
@@ -26,38 +31,9 @@ feed.get("/", (req, res) => {
   res.end();
 });
 
-feed.post("/image", upload.array('images[]'), (req, res) => {
-
-  async.forEachOf(req.files, (file, i, callback) => {
-    jpegAutorotate.rotate(file.path, {quality: 100}, (err, buffer) => {
-      if (err) {
-        if (err.code === jo.errors.correct_orientation) {
-          return callback();
-        } else {
-          console.error(err);
-          return callback(err);
-        }
-      }
-
-      fs.writeFile(file.path, buffer, err => {
-        if (err) {
-          console.error(err);
-          return callback(e);
-        }
-        callback();
-      });
-    });
-  }, err => {
-    if (err) {
-      console.error(err)
-      res.json(err);
-      res.end();
-      return;
-    }
-
-    res.json({status: "ok"})
-    res.end()
-  });
+feed.post("/image", upload.array('files[]'), (req, res) => {
+  res.json(req.files);
+  res.end();
 });
 
 feed.get("/images", (req, res) => {

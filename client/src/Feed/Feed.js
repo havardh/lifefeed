@@ -36,10 +36,18 @@ export default class Feed extends React.Component {
     });
   }
 
-  closeModal  =() => {
+  closeModal  = ({shouldFetch}) => {
     this.setState({
       modal: undefined
     });
+
+    if (shouldFetch) {      
+      fetch("/api/feed/images")
+        .then(res => res.json())
+        .then(({items}) => {
+        this.setState({items});
+      })
+    }
   }
 
   componentDidMount() {
