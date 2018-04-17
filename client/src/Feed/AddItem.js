@@ -34,9 +34,8 @@ const previewsStyle = {
 }
 
 const previewStyle = {
-  border: "5px",
+  border: "5px solid #EEE",
   padding: "5px",
-  backgroundColor: "red",
   width: "100px",
   height: "100px"
 }
@@ -49,7 +48,9 @@ const previewImageStyle = {
   maxHeight: "80px",
   maxWidth: "80px",
   height: "auto",
-  width: "auto"
+  width: "auto",
+  display: "block",
+  margin: "auto"
 };
 
 function toArray(files) {
