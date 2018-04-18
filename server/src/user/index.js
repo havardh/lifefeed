@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import passwordless from "passwordless";
+import * as User from "./service";
 const user = express.Router();
 
 user.get("/landing", function (req, res) {
@@ -13,14 +14,21 @@ user.get("/login", function (req, res) {
 
 user.post("/login",
   passwordless.requestToken(
-    function(user, delivery, callback) {
-      callback(null, user);
-    }
+    function(email, delivery, callback) {
+      User.findByEmail(email)
+        .then(user => callback(null, user))
+        .catch(() => callback(null, null));
+    },
+    { failureRedirect: '/user/denied' }
   ),
   function(req, res) {
     res.sendFile(path.resolve(__dirname, "views/token-sent.html"));
   }
 );
+
+user.get("/denied", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "views/denied.html"));
+});
 
 user.get("/auth",
   passwordless.acceptToken(),

@@ -1,5 +1,5 @@
 Arguments: 
-  /home/havard/.nvm/versions/node/v8.4.0/bin/node /home/havard/.nvm/versions/node/v8.4.0/bin/yarn add passwordless-postgrestore
+  /home/havard/.nvm/versions/node/v8.4.0/bin/node /home/havard/.nvm/versions/node/v8.4.0/bin/yarn start
 
 PATH: 
   /home/havard/lib/zplug/bin:/home/havard/.nvm/versions/node/v8.4.0/bin:/home/havard/.opam/4.02.3/bin:./bin:/home/havard/.cargo/bin:/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/opt/android-sdk/platform-tools:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/home/havard/bin:/usr/share/intellij-idea-ultimate-edition/bin:./node_modules/.bin:/home/havard/apps/javaflow/bin:/home/havard/apps/sonarlint/bin:/opt/glassfish4/bin:/home/havard/lib/emsdk-portable:/home/havard/lib/emsdk-portable/clang/fastcomp/build_incoming_64/bin:/home/havard/lib/emsdk-portable/emscripten/incoming:/home/havard/Android/Sdk/tools:/home/havard/Android/Sdk/platform-tools
@@ -20,7 +20,8 @@ npm manifest:
     "description": "",
     "main": "index.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+      "start": "node index.js",
+      "dev": "nodemon index.js",
     },
     "author": "",
     "license": "MIT",
@@ -36,11 +37,15 @@ npm manifest:
     },
     "dependencies": {
       "async": "^2.6.0",
-      "body-parser": "^1.18.2",
+      "bcrypt": "^1.0.2",
+      "connect-pg-simple": "^4.2.1",
+      "cookie-parser": "^1.4.3",
+      "emailjs": "^2.0.0",
       "express": "^4.16.3",
-      "jpeg-autorotate": "^3.1.0",
+      "express-session": "^1.15.6",
       "multer": "^1.3.0",
-      "node-gyp": "^3.6.2"
+      "passwordless": "^1.1.2",
+      "passwordless-postgrestore": "https://github.com/Battochon/passwordless-postgrestore.git"
     }
   }
 
@@ -63,6 +68,10 @@ Lockfile:
       mime-types "~2.1.18"
       negotiator "0.6.1"
   
+  addressparser@^0.3.2:
+    version "0.3.2"
+    resolved "https://registry.yarnpkg.com/addressparser/-/addressparser-0.3.2.tgz#59873f35e8fcf6c7361c10239261d76e15348bb2"
+  
   ajv@^5.1.0:
     version "5.5.2"
     resolved "https://registry.yarnpkg.com/ajv/-/ajv-5.5.2.tgz#73b5eeca3fab653e3d3f9422b341ad42205dc965"
@@ -75,10 +84,6 @@ Lockfile:
   ansi-regex@^2.0.0:
     version "2.1.1"
     resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-2.1.1.tgz#c3b33ab5ee360d86e0e628f0468ae7ef27d654df"
-  
-  ansi-regex@^3.0.0:
-    version "3.0.0"
-    resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-3.0.0.tgz#ed0317c322064f79466c02966bddb605ab37d998"
   
   ansi-styles@^2.2.1:
     version "2.2.1"
@@ -111,7 +116,7 @@ Lockfile:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-1.0.0.tgz#f12e0f3c5d77b0b1cdd9146942e4e96c1e4dd525"
   
-  async@^2.5.0, async@^2.6.0:
+  async@^2.6.0:
     version "2.6.0"
     resolved "https://registry.yarnpkg.com/async/-/async-2.6.0.tgz#61a29abb6fcc026fea77e56d1c6ec53a795951f4"
     dependencies:
@@ -599,11 +604,22 @@ Lockfile:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   
+  base-x@^1.1.0:
+    version "1.1.0"
+    resolved "https://registry.yarnpkg.com/base-x/-/base-x-1.1.0.tgz#42d3d717474f9ea02207f6d1aa1f426913eeb7ac"
+  
   bcrypt-pbkdf@^1.0.0:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.1.tgz#63bc5dcb61331b92bc05fd528953c33462a06f8d"
     dependencies:
       tweetnacl "^0.14.3"
+  
+  bcrypt@^1.0.2:
+    version "1.0.3"
+    resolved "https://registry.yarnpkg.com/bcrypt/-/bcrypt-1.0.3.tgz#b02ddc6c0b52ea16b8d3cf375d5a32e780dab548"
+    dependencies:
+      nan "2.6.2"
+      node-pre-gyp "0.6.36"
   
   block-stream@*:
     version "0.0.9"
@@ -611,7 +627,7 @@ Lockfile:
     dependencies:
       inherits "~2.0.0"
   
-  body-parser@1.18.2, body-parser@^1.18.2:
+  body-parser@1.18.2:
     version "1.18.2"
     resolved "https://registry.yarnpkg.com/body-parser/-/body-parser-1.18.2.tgz#87678a19d84b47d859b83199bd59bce222b10454"
     dependencies:
@@ -652,13 +668,23 @@ Lockfile:
       caniuse-lite "^1.0.30000792"
       electron-to-chromium "^1.3.30"
   
+  bs58@^3.0.0:
+    version "3.1.0"
+    resolved "https://registry.yarnpkg.com/bs58/-/bs58-3.1.0.tgz#d4c26388bf4804cac714141b1945aa47e5eb248e"
+    dependencies:
+      base-x "^1.1.0"
+  
   buffer-from@^1.0.0:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.0.0.tgz#4cb8832d23612589b0406e9e2956c17f06fdf531"
   
-  builtin-modules@^1.0.0:
-    version "1.1.1"
-    resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-1.1.1.tgz#270f076c5a72c02f5b65a47df94c5fe3a278892f"
+  buffer-writer@1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/buffer-writer/-/buffer-writer-1.0.1.tgz#22a936901e3029afcd7547eb4487ceb697a3bf08"
+  
+  bufferjs@1.1.0:
+    version "1.1.0"
+    resolved "https://registry.yarnpkg.com/bufferjs/-/bufferjs-1.1.0.tgz#095ffa39c5e6b40a2178a1169c9effc584a73201"
   
   busboy@^0.2.11:
     version "0.2.14"
@@ -670,10 +696,6 @@ Lockfile:
   bytes@3.0.0:
     version "3.0.0"
     resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.0.0.tgz#d32815404d689699f85a4ea4fa8755dd13a96048"
-  
-  camelcase@^4.1.0:
-    version "4.1.0"
-    resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
   
   caniuse-lite@^1.0.30000792:
     version "1.0.30000814"
@@ -693,14 +715,6 @@ Lockfile:
       strip-ansi "^3.0.0"
       supports-color "^2.0.0"
   
-  cliui@^3.2.0:
-    version "3.2.0"
-    resolved "https://registry.yarnpkg.com/cliui/-/cliui-3.2.0.tgz#120601537a916d29940f934da3b48d585a39213d"
-    dependencies:
-      string-width "^1.0.1"
-      strip-ansi "^3.0.1"
-      wrap-ansi "^2.0.0"
-  
   co@^4.6.0:
     version "4.6.0"
     resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
@@ -708,10 +722,6 @@ Lockfile:
   code-point-at@^1.0.0:
     version "1.1.0"
     resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
-  
-  colors@^1.1.2:
-    version "1.2.1"
-    resolved "https://registry.yarnpkg.com/colors/-/colors-1.2.1.tgz#f4a3d302976aaf042356ba1ade3b1a2c62d9d794"
   
   combined-stream@1.0.6, combined-stream@~1.0.5:
     version "1.0.6"
@@ -732,6 +742,12 @@ Lockfile:
       readable-stream "^2.2.2"
       typedarray "^0.0.6"
   
+  connect-pg-simple@^4.2.1:
+    version "4.2.1"
+    resolved "https://registry.yarnpkg.com/connect-pg-simple/-/connect-pg-simple-4.2.1.tgz#bd7eb68d98326ddb01abb963cd3016f7ec1e2926"
+    dependencies:
+      pg ">=6.0.0-0 <7.0.0-0"
+  
   console-control-strings@^1.0.0, console-control-strings@~1.1.0:
     version "1.1.0"
     resolved "https://registry.yarnpkg.com/console-control-strings/-/console-control-strings-1.1.0.tgz#3d7cf4464db6446ea644bf4b39507f9851008e8e"
@@ -747,6 +763,13 @@ Lockfile:
   convert-source-map@^1.5.0:
     version "1.5.1"
     resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-1.5.1.tgz#b8278097b9bc229365de5c62cf5fcaed8b5599e5"
+  
+  cookie-parser@^1.4.3:
+    version "1.4.3"
+    resolved "https://registry.yarnpkg.com/cookie-parser/-/cookie-parser-1.4.3.tgz#0fe31fa19d000b95f4aadf1f53fdc2b8a203baa5"
+    dependencies:
+      cookie "0.3.1"
+      cookie-signature "1.0.6"
   
   cookie-signature@1.0.6:
     version "1.0.6"
@@ -764,13 +787,9 @@ Lockfile:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   
-  cross-spawn@^5.0.1:
-    version "5.1.0"
-    resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-5.1.0.tgz#e8bd0efee58fcff6f8f94510a0a554bbfa235449"
-    dependencies:
-      lru-cache "^4.0.1"
-      shebang-command "^1.2.0"
-      which "^1.2.9"
+  crc@3.4.4:
+    version "3.4.4"
+    resolved "https://registry.yarnpkg.com/crc/-/crc-3.4.4.tgz#9da1e980e3bd44fc5c93bf5ab3da3378d85e466b"
   
   cryptiles@3.x.x:
     version "3.1.2"
@@ -784,15 +803,15 @@ Lockfile:
     dependencies:
       assert-plus "^1.0.0"
   
-  debug@2.6.9, debug@^2.6.8:
+  debug@2.6.9, debug@^2.2.0, debug@^2.6.8:
     version "2.6.9"
     resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
     dependencies:
       ms "2.0.0"
   
-  decamelize@^1.1.1:
-    version "1.2.0"
-    resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
+  deep-extend@~0.4.0:
+    version "0.4.2"
+    resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.4.2.tgz#48b699c27e334bf89f10892be432f6e4c7d34a7f"
   
   delayed-stream@~1.0.0:
     version "1.0.0"
@@ -841,15 +860,32 @@ Lockfile:
     version "1.3.37"
     resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.37.tgz#4a92734e0044c8cf0b1553be57eae21a4c6e5fab"
   
+  emailjs-base64@^1.1.4:
+    version "1.1.4"
+    resolved "https://registry.yarnpkg.com/emailjs-base64/-/emailjs-base64-1.1.4.tgz#392fa38cb6aa35dccd3af3637ffc14c1c7ce9612"
+  
+  emailjs-mime-codec@^2.0.5:
+    version "2.0.7"
+    resolved "https://registry.yarnpkg.com/emailjs-mime-codec/-/emailjs-mime-codec-2.0.7.tgz#501341be3e322457ae10ed4cfe1c5c0ca1f1adf7"
+    dependencies:
+      emailjs-base64 "^1.1.4"
+      ramda "^0.25.0"
+      text-encoding "^0.6.4"
+  
+  emailjs@^2.0.0:
+    version "2.0.0"
+    resolved "https://registry.yarnpkg.com/emailjs/-/emailjs-2.0.0.tgz#785b404b0e4ad83e5cdeb1978959e29a1e90f584"
+    dependencies:
+      addressparser "^0.3.2"
+      emailjs-mime-codec "^2.0.5"
+      moment "2.20.1"
+      starttls "1.0.1"
+    optionalDependencies:
+      bufferjs "1.1.0"
+  
   encodeurl@~1.0.2:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.2.tgz#ad3ff4c86ec2d029322f5a02c3a9a606c95b3f59"
-  
-  error-ex@^1.2.0:
-    version "1.3.1"
-    resolved "https://registry.yarnpkg.com/error-ex/-/error-ex-1.3.1.tgz#f855a86ce61adc4e8621c3cda21e7a7612c3a8dc"
-    dependencies:
-      is-arrayish "^0.2.1"
   
   escape-html@~1.0.3:
     version "1.0.3"
@@ -867,17 +903,19 @@ Lockfile:
     version "1.8.1"
     resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   
-  execa@^0.7.0:
-    version "0.7.0"
-    resolved "https://registry.yarnpkg.com/execa/-/execa-0.7.0.tgz#944becd34cc41ee32a63a9faf27ad5a65fc59777"
+  express-session@^1.15.6:
+    version "1.15.6"
+    resolved "https://registry.yarnpkg.com/express-session/-/express-session-1.15.6.tgz#47b4160c88f42ab70fe8a508e31cbff76757ab0a"
     dependencies:
-      cross-spawn "^5.0.1"
-      get-stream "^3.0.0"
-      is-stream "^1.1.0"
-      npm-run-path "^2.0.0"
-      p-finally "^1.0.0"
-      signal-exit "^3.0.0"
-      strip-eof "^1.0.0"
+      cookie "0.3.1"
+      cookie-signature "1.0.6"
+      crc "3.4.4"
+      debug "2.6.9"
+      depd "~1.1.1"
+      on-headers "~1.0.1"
+      parseurl "~1.3.2"
+      uid-safe "~2.1.5"
+      utils-merge "1.0.1"
   
   express@^4.16.3:
     version "4.16.3"
@@ -946,12 +984,6 @@ Lockfile:
       statuses "~1.4.0"
       unpipe "~1.0.0"
   
-  find-up@^2.0.0:
-    version "2.1.0"
-    resolved "https://registry.yarnpkg.com/find-up/-/find-up-2.1.0.tgz#45d1b7e506c717ddd482775a2b77920a3c0c57a7"
-    dependencies:
-      locate-path "^2.0.0"
-  
   forever-agent@~0.6.1:
     version "0.6.1"
     resolved "https://registry.yarnpkg.com/forever-agent/-/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
@@ -976,7 +1008,15 @@ Lockfile:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
   
-  fstream@^1.0.0, fstream@^1.0.2:
+  fstream-ignore@^1.0.5:
+    version "1.0.5"
+    resolved "https://registry.yarnpkg.com/fstream-ignore/-/fstream-ignore-1.0.5.tgz#9c31dae34767018fe1d249b24dada67d092da105"
+    dependencies:
+      fstream "^1.0.0"
+      inherits "2"
+      minimatch "^3.0.0"
+  
+  fstream@^1.0.0, fstream@^1.0.10, fstream@^1.0.2:
     version "1.0.11"
     resolved "https://registry.yarnpkg.com/fstream/-/fstream-1.0.11.tgz#5c1fb1f117477114f0632a0eb4b71b3cb0fd3171"
     dependencies:
@@ -998,13 +1038,9 @@ Lockfile:
       strip-ansi "^3.0.1"
       wide-align "^1.1.0"
   
-  get-caller-file@^1.0.1:
-    version "1.0.2"
-    resolved "https://registry.yarnpkg.com/get-caller-file/-/get-caller-file-1.0.2.tgz#f702e63127e7e231c160a80c1554acb70d5047e5"
-  
-  get-stream@^3.0.0:
-    version "3.0.0"
-    resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-3.0.0.tgz#8e943d1358dc37555054ecbe2edb05aa174ede14"
+  generic-pool@2.4.3:
+    version "2.4.3"
+    resolved "https://registry.yarnpkg.com/generic-pool/-/generic-pool-2.4.3.tgz#780c36f69dfad05a5a045dd37be7adca11a4f6ff"
   
   getpass@^0.1.1:
     version "0.1.7"
@@ -1012,7 +1048,7 @@ Lockfile:
     dependencies:
       assert-plus "^1.0.0"
   
-  glob@^7.0.3, glob@^7.0.5, glob@^7.1.2:
+  glob@^7.0.5:
     version "7.1.2"
     resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.2.tgz#c19c9df9a028702d678612384a6552404c636d15"
     dependencies:
@@ -1072,10 +1108,6 @@ Lockfile:
       os-homedir "^1.0.0"
       os-tmpdir "^1.0.1"
   
-  hosted-git-info@^2.1.4:
-    version "2.6.0"
-    resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.6.0.tgz#23235b29ab230c576aab0d4f13fc046b0b038222"
-  
   http-errors@1.6.2, http-errors@~1.6.2:
     version "1.6.2"
     resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-1.6.2.tgz#0a002cc85707192a7e7946ceedc11155f60ec736"
@@ -1108,29 +1140,19 @@ Lockfile:
     version "2.0.3"
     resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
   
+  ini@~1.3.0:
+    version "1.3.5"
+    resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
+  
   invariant@^2.2.2:
     version "2.2.4"
     resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
     dependencies:
       loose-envify "^1.0.0"
   
-  invert-kv@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
-  
   ipaddr.js@1.6.0:
     version "1.6.0"
     resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-1.6.0.tgz#e3fa357b773da619f26e95f049d055c72796f86b"
-  
-  is-arrayish@^0.2.1:
-    version "0.2.1"
-    resolved "https://registry.yarnpkg.com/is-arrayish/-/is-arrayish-0.2.1.tgz#77c99840527aa8ecb1a8ba697b80645a7a926a9d"
-  
-  is-builtin-module@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/is-builtin-module/-/is-builtin-module-1.0.0.tgz#540572d34f7ac3119f8f76c30cbc1b1e037affbe"
-    dependencies:
-      builtin-modules "^1.0.0"
   
   is-finite@^1.0.0:
     version "1.0.2"
@@ -1144,14 +1166,6 @@ Lockfile:
     dependencies:
       number-is-nan "^1.0.0"
   
-  is-fullwidth-code-point@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/is-fullwidth-code-point/-/is-fullwidth-code-point-2.0.0.tgz#a3b30a5c4f199183167aaab93beefae3ddfb654f"
-  
-  is-stream@^1.1.0:
-    version "1.1.0"
-    resolved "https://registry.yarnpkg.com/is-stream/-/is-stream-1.1.0.tgz#12d4a3dd4e68e0b79ceb8dbc84173ae80d91ca44"
-  
   is-typedarray@~1.0.0:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/is-typedarray/-/is-typedarray-1.0.0.tgz#e479c80858df0c1b11ddda6940f96011fcda4a9a"
@@ -1164,28 +1178,13 @@ Lockfile:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   
-  isexe@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
-  
   isstream@~0.1.2:
     version "0.1.2"
     resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
   
-  jpeg-autorotate@^3.1.0:
-    version "3.1.0"
-    resolved "https://registry.yarnpkg.com/jpeg-autorotate/-/jpeg-autorotate-3.1.0.tgz#52a98ba02b2d05e2a9f52c0c9a020137946cc2ec"
-    dependencies:
-      async "^2.5.0"
-      colors "^1.1.2"
-      glob "^7.1.2"
-      jpeg-js "^0.3.3"
-      piexifjs "^1.0.3"
-      yargs "^9.0.1"
-  
-  jpeg-js@^0.3.3:
-    version "0.3.4"
-    resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.3.4.tgz#dc2ba501ee3d58b7bb893c5d1fab47294917e7e7"
+  js-string-escape@1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/js-string-escape/-/js-string-escape-1.0.1.tgz#e2625badbc0d67c7533e9edc1068c587ae4137ef"
   
   js-tokens@^3.0.0, js-tokens@^3.0.2:
     version "3.0.2"
@@ -1228,28 +1227,6 @@ Lockfile:
       json-schema "0.2.3"
       verror "1.10.0"
   
-  lcid@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/lcid/-/lcid-1.0.0.tgz#308accafa0bc483a3867b4b6f2b9506251d1b835"
-    dependencies:
-      invert-kv "^1.0.0"
-  
-  load-json-file@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/load-json-file/-/load-json-file-2.0.0.tgz#7947e42149af80d696cbf797bcaabcfe1fe29ca8"
-    dependencies:
-      graceful-fs "^4.1.2"
-      parse-json "^2.2.0"
-      pify "^2.0.0"
-      strip-bom "^3.0.0"
-  
-  locate-path@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-2.0.0.tgz#2b568b265eec944c6d9c0de9c3dbbbca0354cd8e"
-    dependencies:
-      p-locate "^2.0.0"
-      path-exists "^3.0.0"
-  
   lodash@^4.14.0, lodash@^4.17.4:
     version "4.17.5"
     resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.5.tgz#99a92d65c0272debe8c96b6057bc8fbfa3bed511"
@@ -1260,22 +1237,9 @@ Lockfile:
     dependencies:
       js-tokens "^3.0.0"
   
-  lru-cache@^4.0.1:
-    version "4.1.2"
-    resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.1.2.tgz#45234b2e6e2f2b33da125624c4664929a0224c3f"
-    dependencies:
-      pseudomap "^1.0.2"
-      yallist "^2.1.2"
-  
   media-typer@0.3.0:
     version "0.3.0"
     resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
-  
-  mem@^1.1.0:
-    version "1.1.0"
-    resolved "https://registry.yarnpkg.com/mem/-/mem-1.1.0.tgz#5edd52b485ca1d900fe64895505399a0dfa45f76"
-    dependencies:
-      mimic-fn "^1.0.0"
   
   merge-descriptors@1.0.1:
     version "1.0.1"
@@ -1299,11 +1263,7 @@ Lockfile:
     version "1.4.1"
     resolved "https://registry.yarnpkg.com/mime/-/mime-1.4.1.tgz#121f9ebc49e3766f311a76e1fa1c8003c4b03aa6"
   
-  mimic-fn@^1.0.0:
-    version "1.2.0"
-    resolved "https://registry.yarnpkg.com/mimic-fn/-/mimic-fn-1.2.0.tgz#820c86a39334640e99516928bd03fca88057d022"
-  
-  minimatch@^3.0.2, minimatch@^3.0.4:
+  minimatch@^3.0.0, minimatch@^3.0.4:
     version "3.0.4"
     resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.0.4.tgz#5166e286457f03306064be5497e8dbb0c3d32083"
     dependencies:
@@ -1313,11 +1273,19 @@ Lockfile:
     version "0.0.8"
     resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
   
-  "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1:
+  minimist@^1.2.0:
+    version "1.2.0"
+    resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.0.tgz#a35008b20f41383eec1fb914f4cd5df79a264284"
+  
+  "mkdirp@>=0.5 0", mkdirp@^0.5.1:
     version "0.5.1"
     resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
     dependencies:
       minimist "0.0.8"
+  
+  moment@2.20.1:
+    version "2.20.1"
+    resolved "https://registry.yarnpkg.com/moment/-/moment-2.20.1.tgz#d6eb1a46cbcc14a2b2f9434112c1ff8907f313fd"
   
   ms@2.0.0:
     version "2.0.0"
@@ -1336,50 +1304,36 @@ Lockfile:
       type-is "^1.6.4"
       xtend "^4.0.0"
   
+  nan@2.6.2:
+    version "2.6.2"
+    resolved "https://registry.yarnpkg.com/nan/-/nan-2.6.2.tgz#e4ff34e6c95fdfb5aecc08de6596f43605a7db45"
+  
   negotiator@0.6.1:
     version "0.6.1"
     resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
   
-  node-gyp@^3.6.2:
-    version "3.6.2"
-    resolved "https://registry.yarnpkg.com/node-gyp/-/node-gyp-3.6.2.tgz#9bfbe54562286284838e750eac05295853fa1c60"
+  node-pre-gyp@0.6.36:
+    version "0.6.36"
+    resolved "https://registry.yarnpkg.com/node-pre-gyp/-/node-pre-gyp-0.6.36.tgz#db604112cb74e0d477554e9b505b17abddfab786"
     dependencies:
-      fstream "^1.0.0"
-      glob "^7.0.3"
-      graceful-fs "^4.1.2"
-      minimatch "^3.0.2"
-      mkdirp "^0.5.0"
-      nopt "2 || 3"
-      npmlog "0 || 1 || 2 || 3 || 4"
-      osenv "0"
-      request "2"
-      rimraf "2"
-      semver "~5.3.0"
-      tar "^2.0.0"
-      which "1"
+      mkdirp "^0.5.1"
+      nopt "^4.0.1"
+      npmlog "^4.0.2"
+      rc "^1.1.7"
+      request "^2.81.0"
+      rimraf "^2.6.1"
+      semver "^5.3.0"
+      tar "^2.2.1"
+      tar-pack "^3.4.0"
   
-  "nopt@2 || 3":
-    version "3.0.6"
-    resolved "https://registry.yarnpkg.com/nopt/-/nopt-3.0.6.tgz#c6465dbf08abcd4db359317f79ac68a646b28ff9"
+  nopt@^4.0.1:
+    version "4.0.1"
+    resolved "https://registry.yarnpkg.com/nopt/-/nopt-4.0.1.tgz#d0d4685afd5415193c8c7505602d0d17cd64474d"
     dependencies:
       abbrev "1"
+      osenv "^0.1.4"
   
-  normalize-package-data@^2.3.2:
-    version "2.4.0"
-    resolved "https://registry.yarnpkg.com/normalize-package-data/-/normalize-package-data-2.4.0.tgz#12f95a307d58352075a04907b84ac8be98ac012f"
-    dependencies:
-      hosted-git-info "^2.1.4"
-      is-builtin-module "^1.0.0"
-      semver "2 || 3 || 4 || 5"
-      validate-npm-package-license "^3.0.1"
-  
-  npm-run-path@^2.0.0:
-    version "2.0.2"
-    resolved "https://registry.yarnpkg.com/npm-run-path/-/npm-run-path-2.0.2.tgz#35a9232dfa35d7067b4cb2ddf2357b1871536c5f"
-    dependencies:
-      path-key "^2.0.0"
-  
-  "npmlog@0 || 1 || 2 || 3 || 4":
+  npmlog@^4.0.2:
     version "4.1.2"
     resolved "https://registry.yarnpkg.com/npmlog/-/npmlog-4.1.2.tgz#08a7f2a8bf734604779a9efa4ad5cc717abb954b"
     dependencies:
@@ -1396,6 +1350,10 @@ Lockfile:
     version "0.8.2"
     resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.8.2.tgz#46a6ab7f0aead8deae9ec0565780b7d4efeb9d43"
   
+  object-assign@4.1.0:
+    version "4.1.0"
+    resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.0.tgz#7a3b3d0e98063d43f4c03f2e8ae6cd51a86883a0"
+  
   object-assign@^3.0.0:
     version "3.0.0"
     resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-3.0.0.tgz#9bedd5ca0897949bca47e7ff408062d549f587f2"
@@ -1410,7 +1368,11 @@ Lockfile:
     dependencies:
       ee-first "1.1.1"
   
-  once@^1.3.0:
+  on-headers@~1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/on-headers/-/on-headers-1.0.1.tgz#928f5d0f470d49342651ea6794b0857c100693f7"
+  
+  once@^1.3.0, once@^1.3.3:
     version "1.4.0"
     resolved "https://registry.yarnpkg.com/once/-/once-1.4.0.tgz#583b1aa775961d4b113ac17d9c50baef9dd76bd1"
     dependencies:
@@ -1420,88 +1382,116 @@ Lockfile:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/os-homedir/-/os-homedir-1.0.2.tgz#ffbc4988336e0e833de0c168c7ef152121aa7fb3"
   
-  os-locale@^2.0.0:
-    version "2.1.0"
-    resolved "https://registry.yarnpkg.com/os-locale/-/os-locale-2.1.0.tgz#42bc2900a6b5b8bd17376c8e882b65afccf24bf2"
-    dependencies:
-      execa "^0.7.0"
-      lcid "^1.0.0"
-      mem "^1.1.0"
-  
   os-tmpdir@^1.0.0, os-tmpdir@^1.0.1:
     version "1.0.2"
     resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
   
-  osenv@0:
+  osenv@^0.1.4:
     version "0.1.5"
     resolved "https://registry.yarnpkg.com/osenv/-/osenv-0.1.5.tgz#85cdfafaeb28e8677f416e287592b5f3f49ea410"
     dependencies:
       os-homedir "^1.0.0"
       os-tmpdir "^1.0.0"
   
-  p-finally@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/p-finally/-/p-finally-1.0.0.tgz#3fbcfb15b899a44123b34b6dcc18b724336a2cae"
-  
-  p-limit@^1.1.0:
-    version "1.2.0"
-    resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-1.2.0.tgz#0e92b6bedcb59f022c13d0f1949dc82d15909f1c"
-    dependencies:
-      p-try "^1.0.0"
-  
-  p-locate@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/p-locate/-/p-locate-2.0.0.tgz#20a0103b222a70c8fd39cc2e580680f3dde5ec43"
-    dependencies:
-      p-limit "^1.1.0"
-  
-  p-try@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/p-try/-/p-try-1.0.0.tgz#cbc79cdbaf8fd4228e13f621f2b1a237c1b207b3"
-  
-  parse-json@^2.2.0:
-    version "2.2.0"
-    resolved "https://registry.yarnpkg.com/parse-json/-/parse-json-2.2.0.tgz#f480f40434ef80741f8469099f8dea18f55a4dc9"
-    dependencies:
-      error-ex "^1.2.0"
+  packet-reader@0.3.1:
+    version "0.3.1"
+    resolved "https://registry.yarnpkg.com/packet-reader/-/packet-reader-0.3.1.tgz#cd62e60af8d7fea8a705ec4ff990871c46871f27"
   
   parseurl@~1.3.2:
     version "1.3.2"
     resolved "https://registry.yarnpkg.com/parseurl/-/parseurl-1.3.2.tgz#fc289d4ed8993119460c156253262cdc8de65bf3"
   
-  path-exists@^3.0.0:
-    version "3.0.0"
-    resolved "https://registry.yarnpkg.com/path-exists/-/path-exists-3.0.0.tgz#ce0ebeaa5f78cb18925ea7d810d7b59b010fd515"
+  "passwordless-postgrestore@https://github.com/Battochon/passwordless-postgrestore.git":
+    version "1.0.0"
+    resolved "https://github.com/Battochon/passwordless-postgrestore.git#feb17613cf4dad8ebfabba54e146d0bc14b390d0"
+    dependencies:
+      bcrypt "^1.0.2"
+      passwordless-tokenstore "0.0.10"
+      pg "^6.4.0"
+  
+  passwordless-tokenstore@0.0.10:
+    version "0.0.10"
+    resolved "https://registry.yarnpkg.com/passwordless-tokenstore/-/passwordless-tokenstore-0.0.10.tgz#829c4c0b792ac2c55de54c05c118d79e946b9b2e"
+  
+  passwordless@^1.1.2:
+    version "1.1.2"
+    resolved "https://registry.yarnpkg.com/passwordless/-/passwordless-1.1.2.tgz#5de97beca49adc48ed84cf66f422414bb0b64d58"
+    dependencies:
+      bs58 "^3.0.0"
   
   path-is-absolute@^1.0.0, path-is-absolute@^1.0.1:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
   
-  path-key@^2.0.0:
-    version "2.0.1"
-    resolved "https://registry.yarnpkg.com/path-key/-/path-key-2.0.1.tgz#411cadb574c5a140d3a4b1910d40d80cc9f40b40"
-  
   path-to-regexp@0.1.7:
     version "0.1.7"
     resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
-  
-  path-type@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/path-type/-/path-type-2.0.0.tgz#f012ccb8415b7096fc2daa1054c3d72389594c73"
-    dependencies:
-      pify "^2.0.0"
   
   performance-now@^2.1.0:
     version "2.1.0"
     resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   
-  piexifjs@^1.0.3:
-    version "1.0.4"
-    resolved "https://registry.yarnpkg.com/piexifjs/-/piexifjs-1.0.4.tgz#6f61e85511fd57eb75591cfb7290688e0abab3fd"
+  pg-connection-string@0.1.3:
+    version "0.1.3"
+    resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-0.1.3.tgz#da1847b20940e42ee1492beaf65d49d91b245df7"
   
-  pify@^2.0.0:
-    version "2.3.0"
-    resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
+  pg-int8@1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/pg-int8/-/pg-int8-1.0.1.tgz#943bd463bf5b71b4170115f80f8efc9a0c0eb78c"
+  
+  pg-pool@1.*:
+    version "1.8.0"
+    resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-1.8.0.tgz#f7ec73824c37a03f076f51bfdf70e340147c4f37"
+    dependencies:
+      generic-pool "2.4.3"
+      object-assign "4.1.0"
+  
+  pg-types@1.*:
+    version "1.13.0"
+    resolved "https://registry.yarnpkg.com/pg-types/-/pg-types-1.13.0.tgz#75f490b8a8abf75f1386ef5ec4455ecf6b345c63"
+    dependencies:
+      pg-int8 "1.0.1"
+      postgres-array "~1.0.0"
+      postgres-bytea "~1.0.0"
+      postgres-date "~1.0.0"
+      postgres-interval "^1.1.0"
+  
+  "pg@>=6.0.0-0 <7.0.0-0", pg@^6.4.0:
+    version "6.4.2"
+    resolved "https://registry.yarnpkg.com/pg/-/pg-6.4.2.tgz#c364011060eac7a507a2ae063eb857ece910e27f"
+    dependencies:
+      buffer-writer "1.0.1"
+      js-string-escape "1.0.1"
+      packet-reader "0.3.1"
+      pg-connection-string "0.1.3"
+      pg-pool "1.*"
+      pg-types "1.*"
+      pgpass "1.*"
+      semver "4.3.2"
+  
+  pgpass@1.*:
+    version "1.0.2"
+    resolved "https://registry.yarnpkg.com/pgpass/-/pgpass-1.0.2.tgz#2a7bb41b6065b67907e91da1b07c1847c877b306"
+    dependencies:
+      split "^1.0.0"
+  
+  postgres-array@~1.0.0:
+    version "1.0.2"
+    resolved "https://registry.yarnpkg.com/postgres-array/-/postgres-array-1.0.2.tgz#8e0b32eb03bf77a5c0a7851e0441c169a256a238"
+  
+  postgres-bytea@~1.0.0:
+    version "1.0.0"
+    resolved "https://registry.yarnpkg.com/postgres-bytea/-/postgres-bytea-1.0.0.tgz#027b533c0aa890e26d172d47cf9ccecc521acd35"
+  
+  postgres-date@~1.0.0:
+    version "1.0.3"
+    resolved "https://registry.yarnpkg.com/postgres-date/-/postgres-date-1.0.3.tgz#e2d89702efdb258ff9d9cee0fe91bd06975257a8"
+  
+  postgres-interval@^1.1.0:
+    version "1.1.1"
+    resolved "https://registry.yarnpkg.com/postgres-interval/-/postgres-interval-1.1.1.tgz#acdb0f897b4b1c6e496d9d4e0a853e1c428f06f0"
+    dependencies:
+      xtend "^4.0.0"
   
   private@^0.1.6, private@^0.1.7:
     version "0.1.8"
@@ -1518,10 +1508,6 @@ Lockfile:
       forwarded "~0.1.2"
       ipaddr.js "1.6.0"
   
-  pseudomap@^1.0.2:
-    version "1.0.2"
-    resolved "https://registry.yarnpkg.com/pseudomap/-/pseudomap-1.0.2.tgz#f052a28da70e618917ef0a8ac34c1ae5a68286b3"
-  
   punycode@^1.4.1:
     version "1.4.1"
     resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
@@ -1529,6 +1515,14 @@ Lockfile:
   qs@6.5.1, qs@~6.5.1:
     version "6.5.1"
     resolved "https://registry.yarnpkg.com/qs/-/qs-6.5.1.tgz#349cdf6eef89ec45c12d7d5eb3fc0c870343a6d8"
+  
+  ramda@^0.25.0:
+    version "0.25.0"
+    resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.25.0.tgz#8fdf68231cffa90bc2f9460390a0cb74a29b29a9"
+  
+  random-bytes@~1.0.0:
+    version "1.0.0"
+    resolved "https://registry.yarnpkg.com/random-bytes/-/random-bytes-1.0.0.tgz#4f68a1dc0ae58bd3fb95848c30324db75d64360b"
   
   range-parser@~1.2.0:
     version "1.2.0"
@@ -1543,20 +1537,14 @@ Lockfile:
       iconv-lite "0.4.19"
       unpipe "1.0.0"
   
-  read-pkg-up@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/read-pkg-up/-/read-pkg-up-2.0.0.tgz#6b72a8048984e0c41e79510fd5e9fa99b3b549be"
+  rc@^1.1.7:
+    version "1.2.6"
+    resolved "https://registry.yarnpkg.com/rc/-/rc-1.2.6.tgz#eb18989c6d4f4f162c399f79ddd29f3835568092"
     dependencies:
-      find-up "^2.0.0"
-      read-pkg "^2.0.0"
-  
-  read-pkg@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/read-pkg/-/read-pkg-2.0.0.tgz#8ef1c0623c6a6db0dc6713c4bfac46332b2368f8"
-    dependencies:
-      load-json-file "^2.0.0"
-      normalize-package-data "^2.3.2"
-      path-type "^2.0.0"
+      deep-extend "~0.4.0"
+      ini "~1.3.0"
+      minimist "^1.2.0"
+      strip-json-comments "~2.0.1"
   
   readable-stream@1.1.x:
     version "1.1.14"
@@ -1567,7 +1555,7 @@ Lockfile:
       isarray "0.0.1"
       string_decoder "~0.10.x"
   
-  readable-stream@^2.0.6, readable-stream@^2.2.2:
+  readable-stream@^2.0.6, readable-stream@^2.1.4, readable-stream@^2.2.2:
     version "2.3.6"
     resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.3.6.tgz#b11c27d88b8ff1fbe070643cf94b0c79ae1b0aaf"
     dependencies:
@@ -1623,7 +1611,7 @@ Lockfile:
     dependencies:
       is-finite "^1.0.0"
   
-  request@2:
+  request@^2.81.0:
     version "2.85.0"
     resolved "https://registry.yarnpkg.com/request/-/request-2.85.0.tgz#5a03615a47c61420b3eb99b7dba204f83603e1fa"
     dependencies:
@@ -1650,15 +1638,7 @@ Lockfile:
       tunnel-agent "^0.6.0"
       uuid "^3.1.0"
   
-  require-directory@^2.1.1:
-    version "2.1.1"
-    resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
-  
-  require-main-filename@^1.0.1:
-    version "1.0.1"
-    resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-1.0.1.tgz#97f717b69d48784f5f526a6c5aa8ffdda055a4d1"
-  
-  rimraf@2:
+  rimraf@2, rimraf@^2.5.1, rimraf@^2.6.1:
     version "2.6.2"
     resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
     dependencies:
@@ -1668,13 +1648,13 @@ Lockfile:
     version "5.1.1"
     resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
   
-  "semver@2 || 3 || 4 || 5", semver@^5.3.0:
+  semver@4.3.2:
+    version "4.3.2"
+    resolved "https://registry.yarnpkg.com/semver/-/semver-4.3.2.tgz#c7a07158a80bedd052355b770d82d6640f803be7"
+  
+  semver@^5.3.0:
     version "5.5.0"
     resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.0.tgz#dc4bbc7a6ca9d916dee5d43516f0092b58f7b8ab"
-  
-  semver@~5.3.0:
-    version "5.3.0"
-    resolved "https://registry.yarnpkg.com/semver/-/semver-5.3.0.tgz#9b2ce5d3de02d17c6012ad326aa6b4d0cf54f94f"
   
   send@0.16.2:
     version "0.16.2"
@@ -1703,7 +1683,7 @@ Lockfile:
       parseurl "~1.3.2"
       send "0.16.2"
   
-  set-blocking@^2.0.0, set-blocking@~2.0.0:
+  set-blocking@~2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/set-blocking/-/set-blocking-2.0.0.tgz#045f9782d011ae9a6803ddd382b24392b3d890f7"
   
@@ -1714,16 +1694,6 @@ Lockfile:
   setprototypeof@1.1.0:
     version "1.1.0"
     resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.0.tgz#d0bd85536887b6fe7c0d818cb962d9d91c54e656"
-  
-  shebang-command@^1.2.0:
-    version "1.2.0"
-    resolved "https://registry.yarnpkg.com/shebang-command/-/shebang-command-1.2.0.tgz#44aac65b695b03398968c39f363fee5deafdf1ea"
-    dependencies:
-      shebang-regex "^1.0.0"
-  
-  shebang-regex@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-1.0.0.tgz#da42f49740c0b42db2ca9728571cb190c98efea3"
   
   signal-exit@^3.0.0:
     version "3.0.2"
@@ -1749,27 +1719,11 @@ Lockfile:
     version "0.5.7"
     resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   
-  spdx-correct@^3.0.0:
-    version "3.0.0"
-    resolved "https://registry.yarnpkg.com/spdx-correct/-/spdx-correct-3.0.0.tgz#05a5b4d7153a195bc92c3c425b69f3b2a9524c82"
+  split@^1.0.0:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/split/-/split-1.0.1.tgz#605bd9be303aa59fb35f9229fbea0ddec9ea07d9"
     dependencies:
-      spdx-expression-parse "^3.0.0"
-      spdx-license-ids "^3.0.0"
-  
-  spdx-exceptions@^2.1.0:
-    version "2.1.0"
-    resolved "https://registry.yarnpkg.com/spdx-exceptions/-/spdx-exceptions-2.1.0.tgz#2c7ae61056c714a5b9b9b2b2af7d311ef5c78fe9"
-  
-  spdx-expression-parse@^3.0.0:
-    version "3.0.0"
-    resolved "https://registry.yarnpkg.com/spdx-expression-parse/-/spdx-expression-parse-3.0.0.tgz#99e119b7a5da00e05491c9fa338b7904823b41d0"
-    dependencies:
-      spdx-exceptions "^2.1.0"
-      spdx-license-ids "^3.0.0"
-  
-  spdx-license-ids@^3.0.0:
-    version "3.0.0"
-    resolved "https://registry.yarnpkg.com/spdx-license-ids/-/spdx-license-ids-3.0.0.tgz#7a7cd28470cc6d3a1cfe6d66886f6bc430d3ac87"
+      through "2"
   
   sshpk@^1.7.0:
     version "1.14.1"
@@ -1784,6 +1738,10 @@ Lockfile:
       ecc-jsbn "~0.1.1"
       jsbn "~0.1.0"
       tweetnacl "~0.14.0"
+  
+  starttls@1.0.1:
+    version "1.0.1"
+    resolved "https://registry.yarnpkg.com/starttls/-/starttls-1.0.1.tgz#e6081c25de6b178f5a75f8f271c1487449183b42"
   
   "statuses@>= 1.3.1 < 2", statuses@~1.4.0:
     version "1.4.0"
@@ -1800,13 +1758,6 @@ Lockfile:
       code-point-at "^1.0.0"
       is-fullwidth-code-point "^1.0.0"
       strip-ansi "^3.0.0"
-  
-  string-width@^2.0.0:
-    version "2.1.1"
-    resolved "https://registry.yarnpkg.com/string-width/-/string-width-2.1.1.tgz#ab93f27a8dc13d28cac815c462143a6d9012ae9e"
-    dependencies:
-      is-fullwidth-code-point "^2.0.0"
-      strip-ansi "^4.0.0"
   
   string_decoder@~0.10.x:
     version "0.10.31"
@@ -1828,31 +1779,42 @@ Lockfile:
     dependencies:
       ansi-regex "^2.0.0"
   
-  strip-ansi@^4.0.0:
-    version "4.0.0"
-    resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-4.0.0.tgz#a8479022eb1ac368a871389b635262c505ee368f"
-    dependencies:
-      ansi-regex "^3.0.0"
-  
-  strip-bom@^3.0.0:
-    version "3.0.0"
-    resolved "https://registry.yarnpkg.com/strip-bom/-/strip-bom-3.0.0.tgz#2334c18e9c759f7bdd56fdef7e9ae3d588e68ed3"
-  
-  strip-eof@^1.0.0:
-    version "1.0.0"
-    resolved "https://registry.yarnpkg.com/strip-eof/-/strip-eof-1.0.0.tgz#bb43ff5598a6eb05d89b59fcd129c983313606bf"
+  strip-json-comments@~2.0.1:
+    version "2.0.1"
+    resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
   
   supports-color@^2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
   
-  tar@^2.0.0:
+  tar-pack@^3.4.0:
+    version "3.4.1"
+    resolved "https://registry.yarnpkg.com/tar-pack/-/tar-pack-3.4.1.tgz#e1dbc03a9b9d3ba07e896ad027317eb679a10a1f"
+    dependencies:
+      debug "^2.2.0"
+      fstream "^1.0.10"
+      fstream-ignore "^1.0.5"
+      once "^1.3.3"
+      readable-stream "^2.1.4"
+      rimraf "^2.5.1"
+      tar "^2.2.1"
+      uid-number "^0.0.6"
+  
+  tar@^2.2.1:
     version "2.2.1"
     resolved "https://registry.yarnpkg.com/tar/-/tar-2.2.1.tgz#8e4d2a256c0e2185c6b18ad694aec968b83cb1d1"
     dependencies:
       block-stream "*"
       fstream "^1.0.2"
       inherits "2"
+  
+  text-encoding@^0.6.4:
+    version "0.6.4"
+    resolved "https://registry.yarnpkg.com/text-encoding/-/text-encoding-0.6.4.tgz#e399a982257a276dae428bb92845cb71bdc26d19"
+  
+  through@2:
+    version "2.3.8"
+    resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   
   to-fast-properties@^1.0.3:
     version "1.0.3"
@@ -1889,6 +1851,16 @@ Lockfile:
     version "0.0.6"
     resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   
+  uid-number@^0.0.6:
+    version "0.0.6"
+    resolved "https://registry.yarnpkg.com/uid-number/-/uid-number-0.0.6.tgz#0ea10e8035e8eb5b8e4449f06da1c730663baa81"
+  
+  uid-safe@~2.1.5:
+    version "2.1.5"
+    resolved "https://registry.yarnpkg.com/uid-safe/-/uid-safe-2.1.5.tgz#2b3d5c7240e8fc2e58f8aa269e5ee49c0857bd3a"
+    dependencies:
+      random-bytes "~1.0.0"
+  
   unpipe@1.0.0, unpipe@~1.0.0:
     version "1.0.0"
     resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
@@ -1905,13 +1877,6 @@ Lockfile:
     version "3.2.1"
     resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.2.1.tgz#12c528bb9d58d0b9265d9a2f6f0fe8be17ff1f14"
   
-  validate-npm-package-license@^3.0.1:
-    version "3.0.3"
-    resolved "https://registry.yarnpkg.com/validate-npm-package-license/-/validate-npm-package-license-3.0.3.tgz#81643bcbef1bdfecd4623793dc4648948ba98338"
-    dependencies:
-      spdx-correct "^3.0.0"
-      spdx-expression-parse "^3.0.0"
-  
   vary@~1.1.2:
     version "1.1.2"
     resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
@@ -1924,28 +1889,11 @@ Lockfile:
       core-util-is "1.0.2"
       extsprintf "^1.2.0"
   
-  which-module@^2.0.0:
-    version "2.0.0"
-    resolved "https://registry.yarnpkg.com/which-module/-/which-module-2.0.0.tgz#d9ef07dce77b9902b8a3a8fa4b31c3e3f7e6e87a"
-  
-  which@1, which@^1.2.9:
-    version "1.3.0"
-    resolved "https://registry.yarnpkg.com/which/-/which-1.3.0.tgz#ff04bdfc010ee547d780bec38e1ac1c2777d253a"
-    dependencies:
-      isexe "^2.0.0"
-  
   wide-align@^1.1.0:
     version "1.1.2"
     resolved "https://registry.yarnpkg.com/wide-align/-/wide-align-1.1.2.tgz#571e0f1b0604636ebc0dfc21b0339bbe31341710"
     dependencies:
       string-width "^1.0.2"
-  
-  wrap-ansi@^2.0.0:
-    version "2.1.0"
-    resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-2.1.0.tgz#d8fc3d284dd05794fe84973caecdd1cf824fdd85"
-    dependencies:
-      string-width "^1.0.1"
-      strip-ansi "^3.0.1"
   
   wrappy@1:
     version "1.0.2"
@@ -1954,729 +1902,12 @@ Lockfile:
   xtend@^4.0.0:
     version "4.0.1"
     resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"
-  
-  y18n@^3.2.1:
-    version "3.2.1"
-    resolved "https://registry.yarnpkg.com/y18n/-/y18n-3.2.1.tgz#6d15fba884c08679c0d77e88e7759e811e07fa41"
-  
-  yallist@^2.1.2:
-    version "2.1.2"
-    resolved "https://registry.yarnpkg.com/yallist/-/yallist-2.1.2.tgz#1c11f9218f076089a47dd512f93c6699a6a81d52"
-  
-  yargs-parser@^7.0.0:
-    version "7.0.0"
-    resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-7.0.0.tgz#8d0ac42f16ea55debd332caf4c4038b3e3f5dfd9"
-    dependencies:
-      camelcase "^4.1.0"
-  
-  yargs@^9.0.1:
-    version "9.0.1"
-    resolved "https://registry.yarnpkg.com/yargs/-/yargs-9.0.1.tgz#52acc23feecac34042078ee78c0c007f5085db4c"
-    dependencies:
-      camelcase "^4.1.0"
-      cliui "^3.2.0"
-      decamelize "^1.1.1"
-      get-caller-file "^1.0.1"
-      os-locale "^2.0.0"
-      read-pkg-up "^2.0.0"
-      require-directory "^2.1.1"
-      require-main-filename "^1.0.1"
-      set-blocking "^2.0.0"
-      string-width "^2.0.0"
-      which-module "^2.0.0"
-      y18n "^3.2.1"
-      yargs-parser "^7.0.0"
 
 Trace: 
-  Error: /home/havard/dev/lifefeed/server/node_modules/bcrypt: Command failed.
-  Exit code: 1
-  Command: sh
-  Arguments: -c node-gyp rebuild
-  Directory: /home/havard/dev/lifefeed/server/node_modules/bcrypt
-  Output:
-  gyp info it worked if it ends with ok
-  gyp info using node-gyp@3.6.2
-  gyp info using node@8.4.0 | linux | x64
-  gyp WARN download NVM_NODEJS_ORG_MIRROR is deprecated and will be removed in node-gyp v4, please use NODEJS_ORG_MIRROR
-  gyp WARN download NVM_NODEJS_ORG_MIRROR is deprecated and will be removed in node-gyp v4, please use NODEJS_ORG_MIRROR
-  gyp info spawn /bin/python2
-  gyp info spawn args [ '/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/npm/node_modules/node-gyp/gyp/gyp_main.py',
-  gyp info spawn args   'binding.gyp',
-  gyp info spawn args   '-f',
-  gyp info spawn args   'make',
-  gyp info spawn args   '-I',
-  gyp info spawn args   '/home/havard/dev/lifefeed/server/node_modules/bcrypt/build/config.gypi',
-  gyp info spawn args   '-I',
-  gyp info spawn args   '/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/npm/node_modules/node-gyp/addon.gypi',
-  gyp info spawn args   '-I',
-  gyp info spawn args   '/home/havard/.node-gyp/8.4.0/include/node/common.gypi',
-  gyp info spawn args   '-Dlibrary=shared_library',
-  gyp info spawn args   '-Dvisibility=default',
-  gyp info spawn args   '-Dnode_root_dir=/home/havard/.node-gyp/8.4.0',
-  gyp info spawn args   '-Dnode_gyp_dir=/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/npm/node_modules/node-gyp',
-  gyp info spawn args   '-Dnode_lib_file=/home/havard/.node-gyp/8.4.0/<(target_arch)/node.lib',
-  gyp info spawn args   '-Dmodule_root_dir=/home/havard/dev/lifefeed/server/node_modules/bcrypt',
-  gyp info spawn args   '-Dnode_engine=v8',
-  gyp info spawn args   '--depth=.',
-  gyp info spawn args   '--no-parallel',
-  gyp info spawn args   '--generator-output',
-  gyp info spawn args   'build',
-  gyp info spawn args   '-Goutput_dir=.' ]
-  gyp WARN download NVM_NODEJS_ORG_MIRROR is deprecated and will be removed in node-gyp v4, please use NODEJS_ORG_MIRROR
-  gyp info spawn make
-  gyp info spawn args [ 'BUILDTYPE=Release', '-C', 'build' ]
-  make: Entering directory '/home/havard/dev/lifefeed/server/node_modules/bcrypt/build'
-    CXX(target) Release/obj.target/bcrypt_lib/src/blowfish.o
-    CXX(target) Release/obj.target/bcrypt_lib/src/bcrypt.o
-  ../src/bcrypt.cc: In function ‘void encode_salt(char*, u_int8_t*, u_int16_t, u_int8_t)’:
-  ../src/bcrypt.cc:132:1: warning: ‘snprintf’ output may be truncated before the last format character [-Wformat-truncation=]
-   encode_salt(char *salt, u_int8_t *csalt, u_int16_t clen, u_int8_t logr)
-   ^~~~~~~~~~~
-  ../src/bcrypt.cc:139:10: note: ‘snprintf’ output between 4 and 5 bytes into a destination of size 4
-    snprintf(salt + 4, 4, "%2.2u$", logr);
-    ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ../src/bcrypt.cc: In function ‘void bcrypt(const char*, const char*, char*)’:
-  ../src/bcrypt.cc:165:1: warning: ‘snprintf’ output may be truncated before the last format character [-Wformat-truncation=]
-   bcrypt(const char *key, const char *salt, char *encrypted)
-   ^~~~~~
-  ../src/bcrypt.cc:270:10: note: ‘snprintf’ output between 4 and 5 bytes into a destination of size 4
-    snprintf(encrypted + i, 4, "%2.2u$", logr);
-    ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CXX(target) Release/obj.target/bcrypt_lib/src/bcrypt_node.o
-  ../src/bcrypt_node.cc: In destructor ‘virtual {anonymous}::baton_base::~baton_base()’:
-  ../src/bcrypt_node.cc:54:18: error: ‘class v8::Persistent<v8::Function>’ has no member named ‘Dispose’
-           callback.Dispose();
-                    ^~~~~~~
-  ../src/bcrypt_node.cc: At global scope:
-  ../src/bcrypt_node.cc:128:19: error: variable or field ‘GenSaltAsync’ declared void
-   void GenSaltAsync(uv_work_t* req) {
-                     ^~~~~~~~~
-  ../src/bcrypt_node.cc:128:19: error: ‘uv_work_t’ was not declared in this scope
-  ../src/bcrypt_node.cc:128:19: note: suggested alternative: ‘uv_loop_s’
-   void GenSaltAsync(uv_work_t* req) {
-                     ^~~~~~~~~
-                     uv_loop_s
-  ../src/bcrypt_node.cc:128:30: error: ‘req’ was not declared in this scope
-   void GenSaltAsync(uv_work_t* req) {
-                                ^~~
-  ../src/bcrypt_node.cc:128:30: note: suggested alternative: ‘free’
-   void GenSaltAsync(uv_work_t* req) {
-                                ^~~
-                                free
-  ../src/bcrypt_node.cc:137:24: error: variable or field ‘GenSaltAsyncAfter’ declared void
-   void GenSaltAsyncAfter(uv_work_t* req) {
-                          ^~~~~~~~~
-  ../src/bcrypt_node.cc:137:24: error: ‘uv_work_t’ was not declared in this scope
-  ../src/bcrypt_node.cc:137:24: note: suggested alternative: ‘uv_loop_s’
-   void GenSaltAsyncAfter(uv_work_t* req) {
-                          ^~~~~~~~~
-                          uv_loop_s
-  ../src/bcrypt_node.cc:137:35: error: ‘req’ was not declared in this scope
-   void GenSaltAsyncAfter(uv_work_t* req) {
-                                     ^~~
-  ../src/bcrypt_node.cc:137:35: note: suggested alternative: ‘free’
-   void GenSaltAsyncAfter(uv_work_t* req) {
-                                     ^~~
-                                     free
-  ../src/bcrypt_node.cc:164:34: error: ‘Arguments’ does not name a type
-   Handle<Value> GenerateSalt(const Arguments &args) {
-                                    ^~~~~~~~~
-  ../src/bcrypt_node.cc: In function ‘v8::Handle<v8::Value> {anonymous}::GenerateSalt(const int&)’:
-  ../src/bcrypt_node.cc:165:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:167:14: error: request for member ‘Length’ in ‘args’, which is of non-class type ‘const int’
-       if (args.Length() < 3) {
-                ^~~~~~
-  ../src/bcrypt_node.cc:168:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("3 arguments expected")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:168:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("3 arguments expected")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:171:36: error: invalid types ‘const int[int]’ for array subscript
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                      ^
-  ../src/bcrypt_node.cc:171:63: error: invalid types ‘const int[int]’ for array subscript
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                                                 ^
-  ../src/bcrypt_node.cc:171:74: error: expected primary-expression before ‘>’ token
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                                                            ^
-  ../src/bcrypt_node.cc:171:76: error: expected primary-expression before ‘)’ token
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                                                              ^
-  ../src/bcrypt_node.cc:172:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("Second argument must be a 16 byte Buffer")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:172:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("Second argument must be a 16 byte Buffer")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:175:34: error: invalid types ‘const int[int]’ for array subscript
-       const ssize_t rounds = args[0]->Int32Value();
-                                    ^
-  ../src/bcrypt_node.cc:176:32: error: invalid types ‘const int[int]’ for array subscript
-       Local<Object> seed = args[1].As<Object>();
-                                  ^
-  ../src/bcrypt_node.cc:176:43: error: expected primary-expression before ‘>’ token
-       Local<Object> seed = args[1].As<Object>();
-                                             ^
-  ../src/bcrypt_node.cc:176:45: error: expected primary-expression before ‘)’ token
-       Local<Object> seed = args[1].As<Object>();
-                                               ^
-  ../src/bcrypt_node.cc:177:60: error: invalid types ‘const int[int]’ for array subscript
-       Local<Function> callback = Local<Function>::Cast(args[2]);
-                                                              ^
-  ../src/bcrypt_node.cc:182:57: error: no matching function for call to ‘v8::Persistent<v8::Function>::New(v8::Local<v8::Function>&)’
-       baton->callback = Persistent<Function>::New(callback);
-                                                           ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:8985:4: note: candidate: static T* v8::PersistentBase<T>::New(v8::Isolate*, T*) [with T = v8::Function]
-   T* PersistentBase<T>::New(Isolate* isolate, T* that) {
-      ^~~~~~~~~~~~~~~~~
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:8985:4: note:   candidate expects 2 arguments, 1 provided
-  ../src/bcrypt_node.cc:185:5: error: ‘uv_work_t’ was not declared in this scope
-       uv_work_t* req = new uv_work_t;
-       ^~~~~~~~~
-  ../src/bcrypt_node.cc:185:5: note: suggested alternative: ‘uv_loop_s’
-       uv_work_t* req = new uv_work_t;
-       ^~~~~~~~~
-       uv_loop_s
-  ../src/bcrypt_node.cc:185:16: error: ‘req’ was not declared in this scope
-       uv_work_t* req = new uv_work_t;
-                  ^~~
-  ../src/bcrypt_node.cc:185:16: note: suggested alternative: ‘free’
-       uv_work_t* req = new uv_work_t;
-                  ^~~
-                  free
-  ../src/bcrypt_node.cc:185:26: error: ‘uv_work_t’ does not name a type; did you mean ‘uv_loop_s’?
-       uv_work_t* req = new uv_work_t;
-                            ^~~~~~~~~
-                            uv_loop_s
-  ../src/bcrypt_node.cc:187:19: error: ‘uv_default_loop’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, GenSaltAsync, (uv_after_work_cb)GenSaltAsyncAfter);
-                     ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:187:43: error: ‘GenSaltAsync’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, GenSaltAsync, (uv_after_work_cb)GenSaltAsyncAfter);
-                                             ^~~~~~~~~~~~
-  ../src/bcrypt_node.cc:187:58: error: ‘uv_after_work_cb’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, GenSaltAsync, (uv_after_work_cb)GenSaltAsyncAfter);
-                                                            ^~~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:187:5: error: ‘uv_queue_work’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, GenSaltAsync, (uv_after_work_cb)GenSaltAsyncAfter);
-       ^~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:189:22: error: too few arguments to function ‘v8::Local<v8::Primitive> v8::Undefined(v8::Isolate*)’
-       return Undefined();
-                        ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:312:27: note: declared here
-     friend Local<Primitive> Undefined(Isolate* isolate);
-                             ^~~~~~~~~
-  ../src/bcrypt_node.cc: At global scope:
-  ../src/bcrypt_node.cc:192:38: error: ‘Arguments’ does not name a type
-   Handle<Value> GenerateSaltSync(const Arguments& args) {
-                                        ^~~~~~~~~
-  ../src/bcrypt_node.cc: In function ‘v8::Handle<v8::Value> {anonymous}::GenerateSaltSync(const int&)’:
-  ../src/bcrypt_node.cc:193:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:195:14: error: request for member ‘Length’ in ‘args’, which is of non-class type ‘const int’
-       if (args.Length() < 2) {
-                ^~~~~~
-  ../src/bcrypt_node.cc:196:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("2 arguments expected")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:196:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("2 arguments expected")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:199:36: error: invalid types ‘const int[int]’ for array subscript
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                      ^
-  ../src/bcrypt_node.cc:199:63: error: invalid types ‘const int[int]’ for array subscript
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                                                 ^
-  ../src/bcrypt_node.cc:199:74: error: expected primary-expression before ‘>’ token
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                                                            ^
-  ../src/bcrypt_node.cc:199:76: error: expected primary-expression before ‘)’ token
-       if (!Buffer::HasInstance(args[1]) || Buffer::Length(args[1].As<Object>()) != 16) {
-                                                                              ^
-  ../src/bcrypt_node.cc:200:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("Second argument must be a 16 byte Buffer")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:200:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("Second argument must be a 16 byte Buffer")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:203:34: error: invalid types ‘const int[int]’ for array subscript
-       const ssize_t rounds = args[0]->Int32Value();
-                                    ^
-  ../src/bcrypt_node.cc:204:52: error: invalid types ‘const int[int]’ for array subscript
-       u_int8_t* seed = (u_int8_t*)Buffer::Data(args[1].As<Object>());
-                                                      ^
-  ../src/bcrypt_node.cc:204:63: error: expected primary-expression before ‘>’ token
-       u_int8_t* seed = (u_int8_t*)Buffer::Data(args[1].As<Object>());
-                                                                 ^
-  ../src/bcrypt_node.cc:204:65: error: expected primary-expression before ‘)’ token
-       u_int8_t* seed = (u_int8_t*)Buffer::Data(args[1].As<Object>());
-                                                                   ^
-  ../src/bcrypt_node.cc:209:18: error: ‘class v8::HandleScope’ has no member named ‘Close’
-       return scope.Close(Encode(salt, strlen(salt), BINARY));
-                    ^~~~~
-  ../src/bcrypt_node.cc:209:57: warning: ‘v8::Local<v8::Value> node::Encode(const void*, size_t, node::encoding)’ is deprecated: Use Encode(isolate, ...) [-Wdeprecated-declarations]
-       return scope.Close(Encode(salt, strlen(salt), BINARY));
-                                                           ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:355:45: note: declared here
-                   inline v8::Local<v8::Value> Encode(
-                                               ^
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:87:42: note: in definition of macro ‘NODE_DEPRECATED’
-       __attribute__((deprecated(message))) declarator
-                                            ^~~~~~~~~~
-  ../src/bcrypt_node.cc: At global scope:
-  ../src/bcrypt_node.cc:213:19: error: variable or field ‘EncryptAsync’ declared void
-   void EncryptAsync(uv_work_t* req) {
-                     ^~~~~~~~~
-  ../src/bcrypt_node.cc:213:19: error: ‘uv_work_t’ was not declared in this scope
-  ../src/bcrypt_node.cc:213:19: note: suggested alternative: ‘uv_loop_s’
-   void EncryptAsync(uv_work_t* req) {
-                     ^~~~~~~~~
-                     uv_loop_s
-  ../src/bcrypt_node.cc:213:30: error: ‘req’ was not declared in this scope
-   void EncryptAsync(uv_work_t* req) {
-                                ^~~
-  ../src/bcrypt_node.cc:213:30: note: suggested alternative: ‘free’
-   void EncryptAsync(uv_work_t* req) {
-                                ^~~
-                                free
-  ../src/bcrypt_node.cc:225:24: error: variable or field ‘EncryptAsyncAfter’ declared void
-   void EncryptAsyncAfter(uv_work_t* req) {
-                          ^~~~~~~~~
-  ../src/bcrypt_node.cc:225:24: error: ‘uv_work_t’ was not declared in this scope
-  ../src/bcrypt_node.cc:225:24: note: suggested alternative: ‘uv_loop_s’
-   void EncryptAsyncAfter(uv_work_t* req) {
-                          ^~~~~~~~~
-                          uv_loop_s
-  ../src/bcrypt_node.cc:225:35: error: ‘req’ was not declared in this scope
-   void EncryptAsyncAfter(uv_work_t* req) {
-                                     ^~~
-  ../src/bcrypt_node.cc:225:35: note: suggested alternative: ‘free’
-   void EncryptAsyncAfter(uv_work_t* req) {
-                                     ^~~
-                                     free
-  ../src/bcrypt_node.cc:252:29: error: ‘Arguments’ does not name a type
-   Handle<Value> Encrypt(const Arguments& args) {
-                               ^~~~~~~~~
-  ../src/bcrypt_node.cc: In function ‘v8::Handle<v8::Value> {anonymous}::Encrypt(const int&)’:
-  ../src/bcrypt_node.cc:253:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:255:14: error: request for member ‘Length’ in ‘args’, which is of non-class type ‘const int’
-       if (args.Length() < 3) {
-                ^~~~~~
-  ../src/bcrypt_node.cc:256:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("3 arguments expected")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:256:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("3 arguments expected")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:259:34: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value data(args[0]->ToString());
-                                    ^
-  ../src/bcrypt_node.cc:260:34: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value salt(args[1]->ToString());
-                                    ^
-  ../src/bcrypt_node.cc:261:60: error: invalid types ‘const int[int]’ for array subscript
-       Local<Function> callback = Local<Function>::Cast(args[2]);
-                                                              ^
-  ../src/bcrypt_node.cc:264:57: error: no matching function for call to ‘v8::Persistent<v8::Function>::New(v8::Local<v8::Function>&)’
-       baton->callback = Persistent<Function>::New(callback);
-                                                           ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:8985:4: note: candidate: static T* v8::PersistentBase<T>::New(v8::Isolate*, T*) [with T = v8::Function]
-   T* PersistentBase<T>::New(Isolate* isolate, T* that) {
-      ^~~~~~~~~~~~~~~~~
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:8985:4: note:   candidate expects 2 arguments, 1 provided
-  ../src/bcrypt_node.cc:268:5: error: ‘uv_work_t’ was not declared in this scope
-       uv_work_t* req = new uv_work_t;
-       ^~~~~~~~~
-  ../src/bcrypt_node.cc:268:5: note: suggested alternative: ‘uv_loop_s’
-       uv_work_t* req = new uv_work_t;
-       ^~~~~~~~~
-       uv_loop_s
-  ../src/bcrypt_node.cc:268:16: error: ‘req’ was not declared in this scope
-       uv_work_t* req = new uv_work_t;
-                  ^~~
-  ../src/bcrypt_node.cc:268:16: note: suggested alternative: ‘free’
-       uv_work_t* req = new uv_work_t;
-                  ^~~
-                  free
-  ../src/bcrypt_node.cc:268:26: error: ‘uv_work_t’ does not name a type; did you mean ‘uv_loop_s’?
-       uv_work_t* req = new uv_work_t;
-                            ^~~~~~~~~
-                            uv_loop_s
-  ../src/bcrypt_node.cc:270:19: error: ‘uv_default_loop’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, EncryptAsync, (uv_after_work_cb)EncryptAsyncAfter);
-                     ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:270:43: error: ‘EncryptAsync’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, EncryptAsync, (uv_after_work_cb)EncryptAsyncAfter);
-                                             ^~~~~~~~~~~~
-  ../src/bcrypt_node.cc:270:43: note: suggested alternative: ‘Encrypt’
-       uv_queue_work(uv_default_loop(), req, EncryptAsync, (uv_after_work_cb)EncryptAsyncAfter);
-                                             ^~~~~~~~~~~~
-                                             Encrypt
-  ../src/bcrypt_node.cc:270:58: error: ‘uv_after_work_cb’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, EncryptAsync, (uv_after_work_cb)EncryptAsyncAfter);
-                                                            ^~~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:270:5: error: ‘uv_queue_work’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, EncryptAsync, (uv_after_work_cb)EncryptAsyncAfter);
-       ^~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:272:22: error: too few arguments to function ‘v8::Local<v8::Primitive> v8::Undefined(v8::Isolate*)’
-       return Undefined();
-                        ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:312:27: note: declared here
-     friend Local<Primitive> Undefined(Isolate* isolate);
-                             ^~~~~~~~~
-  ../src/bcrypt_node.cc: At global scope:
-  ../src/bcrypt_node.cc:275:33: error: ‘Arguments’ does not name a type
-   Handle<Value> EncryptSync(const Arguments& args) {
-                                   ^~~~~~~~~
-  ../src/bcrypt_node.cc: In function ‘v8::Handle<v8::Value> {anonymous}::EncryptSync(const int&)’:
-  ../src/bcrypt_node.cc:276:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:278:14: error: request for member ‘Length’ in ‘args’, which is of non-class type ‘const int’
-       if (args.Length() < 2) {
-                ^~~~~~
-  ../src/bcrypt_node.cc:279:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("2 arguments expected")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:279:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("2 arguments expected")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:282:34: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value data(args[0]->ToString());
-                                    ^
-  ../src/bcrypt_node.cc:283:34: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value salt(args[1]->ToString());
-                                    ^
-  ../src/bcrypt_node.cc:286:56: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::Error(String::New("Invalid salt. Salt must be in the form of: $Vers$log2(NumRounds)$saltvalue")));
-                                                          ^~~
-  ../src/bcrypt_node.cc:286:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::Error(String::New("Invalid salt. Salt must be in the form of: $Vers$log2(NumRounds)$saltvalue")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:291:18: error: ‘class v8::HandleScope’ has no member named ‘Close’
-       return scope.Close(Encode(bcrypted, strlen(bcrypted), BINARY));
-                    ^~~~~
-  ../src/bcrypt_node.cc:291:65: warning: ‘v8::Local<v8::Value> node::Encode(const void*, size_t, node::encoding)’ is deprecated: Use Encode(isolate, ...) [-Wdeprecated-declarations]
-       return scope.Close(Encode(bcrypted, strlen(bcrypted), BINARY));
-                                                                   ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:355:45: note: declared here
-                   inline v8::Local<v8::Value> Encode(
-                                               ^
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:87:42: note: in definition of macro ‘NODE_DEPRECATED’
-       __attribute__((deprecated(message))) declarator
-                                            ^~~~~~~~~~
-  ../src/bcrypt_node.cc: At global scope:
-  ../src/bcrypt_node.cc:318:19: error: variable or field ‘CompareAsync’ declared void
-   void CompareAsync(uv_work_t* req) {
-                     ^~~~~~~~~
-  ../src/bcrypt_node.cc:318:19: error: ‘uv_work_t’ was not declared in this scope
-  ../src/bcrypt_node.cc:318:19: note: suggested alternative: ‘uv_loop_s’
-   void CompareAsync(uv_work_t* req) {
-                     ^~~~~~~~~
-                     uv_loop_s
-  ../src/bcrypt_node.cc:318:30: error: ‘req’ was not declared in this scope
-   void CompareAsync(uv_work_t* req) {
-                                ^~~
-  ../src/bcrypt_node.cc:318:30: note: suggested alternative: ‘free’
-   void CompareAsync(uv_work_t* req) {
-                                ^~~
-                                free
-  ../src/bcrypt_node.cc:328:24: error: variable or field ‘CompareAsyncAfter’ declared void
-   void CompareAsyncAfter(uv_work_t* req) {
-                          ^~~~~~~~~
-  ../src/bcrypt_node.cc:328:24: error: ‘uv_work_t’ was not declared in this scope
-  ../src/bcrypt_node.cc:328:24: note: suggested alternative: ‘uv_loop_s’
-   void CompareAsyncAfter(uv_work_t* req) {
-                          ^~~~~~~~~
-                          uv_loop_s
-  ../src/bcrypt_node.cc:328:35: error: ‘req’ was not declared in this scope
-   void CompareAsyncAfter(uv_work_t* req) {
-                                     ^~~
-  ../src/bcrypt_node.cc:328:35: note: suggested alternative: ‘free’
-   void CompareAsyncAfter(uv_work_t* req) {
-                                     ^~~
-                                     free
-  ../src/bcrypt_node.cc:356:29: error: ‘Arguments’ does not name a type
-   Handle<Value> Compare(const Arguments& args) {
-                               ^~~~~~~~~
-  ../src/bcrypt_node.cc: In function ‘v8::Handle<v8::Value> {anonymous}::Compare(const int&)’:
-  ../src/bcrypt_node.cc:357:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:359:14: error: request for member ‘Length’ in ‘args’, which is of non-class type ‘const int’
-       if (args.Length() < 3) {
-                ^~~~~~
-  ../src/bcrypt_node.cc:360:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("3 arguments expected")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:360:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("3 arguments expected")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:363:35: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value input(args[0]->ToString());
-                                     ^
-  ../src/bcrypt_node.cc:364:39: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value encrypted(args[1]->ToString());
-                                         ^
-  ../src/bcrypt_node.cc:365:60: error: invalid types ‘const int[int]’ for array subscript
-       Local<Function> callback = Local<Function>::Cast(args[2]);
-                                                              ^
-  ../src/bcrypt_node.cc:368:57: error: no matching function for call to ‘v8::Persistent<v8::Function>::New(v8::Local<v8::Function>&)’
-       baton->callback = Persistent<Function>::New(callback);
-                                                           ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:8985:4: note: candidate: static T* v8::PersistentBase<T>::New(v8::Isolate*, T*) [with T = v8::Function]
-   T* PersistentBase<T>::New(Isolate* isolate, T* that) {
-      ^~~~~~~~~~~~~~~~~
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:8985:4: note:   candidate expects 2 arguments, 1 provided
-  ../src/bcrypt_node.cc:372:5: error: ‘uv_work_t’ was not declared in this scope
-       uv_work_t* req = new uv_work_t;
-       ^~~~~~~~~
-  ../src/bcrypt_node.cc:372:5: note: suggested alternative: ‘uv_loop_s’
-       uv_work_t* req = new uv_work_t;
-       ^~~~~~~~~
-       uv_loop_s
-  ../src/bcrypt_node.cc:372:16: error: ‘req’ was not declared in this scope
-       uv_work_t* req = new uv_work_t;
-                  ^~~
-  ../src/bcrypt_node.cc:372:16: note: suggested alternative: ‘free’
-       uv_work_t* req = new uv_work_t;
-                  ^~~
-                  free
-  ../src/bcrypt_node.cc:372:26: error: ‘uv_work_t’ does not name a type; did you mean ‘uv_loop_s’?
-       uv_work_t* req = new uv_work_t;
-                            ^~~~~~~~~
-                            uv_loop_s
-  ../src/bcrypt_node.cc:374:19: error: ‘uv_default_loop’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, CompareAsync, (uv_after_work_cb)CompareAsyncAfter);
-                     ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:374:43: error: ‘CompareAsync’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, CompareAsync, (uv_after_work_cb)CompareAsyncAfter);
-                                             ^~~~~~~~~~~~
-  ../src/bcrypt_node.cc:374:43: note: suggested alternative: ‘Compare’
-       uv_queue_work(uv_default_loop(), req, CompareAsync, (uv_after_work_cb)CompareAsyncAfter);
-                                             ^~~~~~~~~~~~
-                                             Compare
-  ../src/bcrypt_node.cc:374:58: error: ‘uv_after_work_cb’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, CompareAsync, (uv_after_work_cb)CompareAsyncAfter);
-                                                            ^~~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:374:5: error: ‘uv_queue_work’ was not declared in this scope
-       uv_queue_work(uv_default_loop(), req, CompareAsync, (uv_after_work_cb)CompareAsyncAfter);
-       ^~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:376:22: error: too few arguments to function ‘v8::Local<v8::Primitive> v8::Undefined(v8::Isolate*)’
-       return Undefined();
-                        ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:312:27: note: declared here
-     friend Local<Primitive> Undefined(Isolate* isolate);
-                             ^~~~~~~~~
-  ../src/bcrypt_node.cc: At global scope:
-  ../src/bcrypt_node.cc:379:33: error: ‘Arguments’ does not name a type
-   Handle<Value> CompareSync(const Arguments& args) {
-                                   ^~~~~~~~~
-  ../src/bcrypt_node.cc: In function ‘v8::Handle<v8::Value> {anonymous}::CompareSync(const int&)’:
-  ../src/bcrypt_node.cc:380:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:382:14: error: request for member ‘Length’ in ‘args’, which is of non-class type ‘const int’
-       if (args.Length() < 2) {
-                ^~~~~~
-  ../src/bcrypt_node.cc:383:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("2 arguments expected")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:383:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("2 arguments expected")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:386:32: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value pw(args[0]->ToString());
-                                  ^
-  ../src/bcrypt_node.cc:387:34: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value hash(args[1]->ToString());
-                                    ^
-  ../src/bcrypt_node.cc:392:60: error: no matching function for call to ‘v8::Boolean::New(bool)’
-           return Boolean::New(CompareStrings(bcrypted, *hash));
-                                                              ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:9393:16: note: candidate: static v8::Local<v8::Boolean> v8::Boolean::New(v8::Isolate*, bool)
-   Local<Boolean> Boolean::New(Isolate* isolate, bool value) {
-                  ^~~~~~~
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:9393:16: note:   candidate expects 2 arguments, 1 provided
-  ../src/bcrypt_node.cc:394:34: error: no matching function for call to ‘v8::Boolean::New(bool)’
-           return Boolean::New(false);
-                                    ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:9393:16: note: candidate: static v8::Local<v8::Boolean> v8::Boolean::New(v8::Isolate*, bool)
-   Local<Boolean> Boolean::New(Isolate* isolate, bool value) {
-                  ^~~~~~~
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:9393:16: note:   candidate expects 2 arguments, 1 provided
-  ../src/bcrypt_node.cc: At global scope:
-  ../src/bcrypt_node.cc:398:31: error: ‘Arguments’ does not name a type
-   Handle<Value> GetRounds(const Arguments& args) {
-                                 ^~~~~~~~~
-  ../src/bcrypt_node.cc: In function ‘v8::Handle<v8::Value> {anonymous}::GetRounds(const int&)’:
-  ../src/bcrypt_node.cc:399:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:401:14: error: request for member ‘Length’ in ‘args’, which is of non-class type ‘const int’
-       if (args.Length() < 1) {
-                ^~~~~~
-  ../src/bcrypt_node.cc:402:60: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::TypeError(String::New("1 argument expected")));
-                                                              ^~~
-  ../src/bcrypt_node.cc:402:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::TypeError(String::New("1 argument expected")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:405:34: error: invalid types ‘const int[int]’ for array subscript
-       String::Utf8Value hash(args[0]->ToString());
-                                    ^
-  ../src/bcrypt_node.cc:408:56: error: ‘New’ is not a member of ‘v8::String’
-           return ThrowException(Exception::Error(String::New("invalid hash provided")));
-                                                          ^~~
-  ../src/bcrypt_node.cc:408:16: error: ‘ThrowException’ was not declared in this scope
-           return ThrowException(Exception::Error(String::New("invalid hash provided")));
-                  ^~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:411:31: error: no matching function for call to ‘v8::Integer::New(u_int32_t&)’
-       return Integer::New(rounds);
-                                 ^
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:2870:25: note: candidate: static v8::Local<v8::Integer> v8::Integer::New(v8::Isolate*, int32_t)
-     static Local<Integer> New(Isolate* isolate, int32_t value);
-                           ^~~
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:2870:25: note:   candidate expects 2 arguments, 1 provided
-  ../src/bcrypt_node.cc: In function ‘void init(v8::Handle<v8::Object>)’:
-  ../src/bcrypt_node.cc:418:17: error: ‘v8::HandleScope::HandleScope()’ is protected within this context
-       HandleScope scope;
-                   ^~~~~
-  In file included from /home/havard/.node-gyp/8.4.0/include/node/node.h:63:0,
-                   from ../src/bcrypt_node.cc:31:
-  /home/havard/.node-gyp/8.4.0/include/node/v8.h:876:13: note: declared protected here
-     V8_INLINE HandleScope() {}
-               ^~~~~~~~~~~
-  ../src/bcrypt_node.cc:420:62: error: invalid conversion from ‘v8::Handle<v8::Value> (*)(const int&) {aka v8::Local<v8::Value> (*)(const int&)}’ to ‘v8::FunctionCallback {aka void (*)(const v8::FunctionCallbackInfo<v8::Value>&)}’ [-fpermissive]
-       NODE_SET_METHOD(target, "gen_salt_sync", GenerateSaltSync);
-                                                                ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:291:13: note:   initializing argument 3 of ‘void node::NODE_SET_METHOD(v8::Local<v8::Object>, const char*, v8::FunctionCallback)’
-   inline void NODE_SET_METHOD(v8::Local<v8::Object> recv,
-               ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:421:56: error: invalid conversion from ‘v8::Handle<v8::Value> (*)(const int&) {aka v8::Local<v8::Value> (*)(const int&)}’ to ‘v8::FunctionCallback {aka void (*)(const v8::FunctionCallbackInfo<v8::Value>&)}’ [-fpermissive]
-       NODE_SET_METHOD(target, "encrypt_sync", EncryptSync);
-                                                          ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:291:13: note:   initializing argument 3 of ‘void node::NODE_SET_METHOD(v8::Local<v8::Object>, const char*, v8::FunctionCallback)’
-   inline void NODE_SET_METHOD(v8::Local<v8::Object> recv,
-               ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:422:56: error: invalid conversion from ‘v8::Handle<v8::Value> (*)(const int&) {aka v8::Local<v8::Value> (*)(const int&)}’ to ‘v8::FunctionCallback {aka void (*)(const v8::FunctionCallbackInfo<v8::Value>&)}’ [-fpermissive]
-       NODE_SET_METHOD(target, "compare_sync", CompareSync);
-                                                          ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:291:13: note:   initializing argument 3 of ‘void node::NODE_SET_METHOD(v8::Local<v8::Object>, const char*, v8::FunctionCallback)’
-   inline void NODE_SET_METHOD(v8::Local<v8::Object> recv,
-               ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:423:52: error: invalid conversion from ‘v8::Handle<v8::Value> (*)(const int&) {aka v8::Local<v8::Value> (*)(const int&)}’ to ‘v8::FunctionCallback {aka void (*)(const v8::FunctionCallbackInfo<v8::Value>&)}’ [-fpermissive]
-       NODE_SET_METHOD(target, "get_rounds", GetRounds);
-                                                      ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:291:13: note:   initializing argument 3 of ‘void node::NODE_SET_METHOD(v8::Local<v8::Object>, const char*, v8::FunctionCallback)’
-   inline void NODE_SET_METHOD(v8::Local<v8::Object> recv,
-               ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:424:53: error: invalid conversion from ‘v8::Handle<v8::Value> (*)(const int&) {aka v8::Local<v8::Value> (*)(const int&)}’ to ‘v8::FunctionCallback {aka void (*)(const v8::FunctionCallbackInfo<v8::Value>&)}’ [-fpermissive]
-       NODE_SET_METHOD(target, "gen_salt", GenerateSalt);
-                                                       ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:291:13: note:   initializing argument 3 of ‘void node::NODE_SET_METHOD(v8::Local<v8::Object>, const char*, v8::FunctionCallback)’
-   inline void NODE_SET_METHOD(v8::Local<v8::Object> recv,
-               ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:425:47: error: invalid conversion from ‘v8::Handle<v8::Value> (*)(const int&) {aka v8::Local<v8::Value> (*)(const int&)}’ to ‘v8::FunctionCallback {aka void (*)(const v8::FunctionCallbackInfo<v8::Value>&)}’ [-fpermissive]
-       NODE_SET_METHOD(target, "encrypt", Encrypt);
-                                                 ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:291:13: note:   initializing argument 3 of ‘void node::NODE_SET_METHOD(v8::Local<v8::Object>, const char*, v8::FunctionCallback)’
-   inline void NODE_SET_METHOD(v8::Local<v8::Object> recv,
-               ^~~~~~~~~~~~~~~
-  ../src/bcrypt_node.cc:426:47: error: invalid conversion from ‘v8::Handle<v8::Value> (*)(const int&) {aka v8::Local<v8::Value> (*)(const int&)}’ to ‘v8::FunctionCallback {aka void (*)(const v8::FunctionCallbackInfo<v8::Value>&)}’ [-fpermissive]
-       NODE_SET_METHOD(target, "compare", Compare);
-                                                 ^
-  In file included from ../src/bcrypt_node.cc:31:0:
-  /home/havard/.node-gyp/8.4.0/include/node/node.h:291:13: note:   initializing argument 3 of ‘void node::NODE_SET_METHOD(v8::Local<v8::Object>, const char*, v8::FunctionCallback)’
-   inline void NODE_SET_METHOD(v8::Local<v8::Object> recv,
-               ^~~~~~~~~~~~~~~
-  make: *** [bcrypt_lib.target.mk:95: Release/obj.target/bcrypt_lib/src/bcrypt_node.o] Error 1
-  make: Leaving directory '/home/havard/dev/lifefeed/server/node_modules/bcrypt/build'
-  gyp ERR! build error 
-  gyp ERR! stack Error: `make` failed with exit code: 2
-  gyp ERR! stack     at ChildProcess.onExit (/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/npm/node_modules/node-gyp/lib/build.js:258:23)
-  gyp ERR! stack     at emitTwo (events.js:125:13)
-  gyp ERR! stack     at ChildProcess.emit (events.js:213:7)
-  gyp ERR! stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:200:12)
-  gyp ERR! System Linux 4.15.1-2-ARCH
-  gyp ERR! command "/home/havard/.nvm/versions/node/v8.4.0/bin/node" "/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
-  gyp ERR! cwd /home/havard/dev/lifefeed/server/node_modules/bcrypt
-  gyp ERR! node -v v8.4.0
-  gyp ERR! node-gyp -v v3.6.2
-  gyp ERR! not ok
-      at ProcessTermError.MessageError (/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/yarn/lib/cli.js:186:110)
-      at new ProcessTermError (/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/yarn/lib/cli.js:226:113)
-      at ChildProcess.<anonymous> (/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/yarn/lib/cli.js:30281:17)
-      at emitTwo (events.js:125:13)
-      at ChildProcess.emit (events.js:213:7)
-      at maybeClose (internal/child_process.js:927:16)
-      at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
+  SyntaxError: /home/havard/dev/lifefeed/server/package.json: Unexpected token } in JSON at position 174
+      at JSON.parse (<anonymous>)
+      at /home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/yarn/lib/cli.js:1036:59
+      at Generator.next (<anonymous>)
+      at step (/home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /home/havard/.nvm/versions/node/v8.4.0/lib/node_modules/yarn/lib/cli.js:109:13
+      at <anonymous>
