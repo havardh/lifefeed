@@ -4,7 +4,7 @@ import Item from "./Item";
 import ShowModal from "./ShowModal";
 import AddItem from "./AddItem";
 
-const Header = () => (<div>Header</div>);
+const Header = () => (<h1>lifefeed</h1>);
 
 const Footer = () => (<div>Footer</div>);
 

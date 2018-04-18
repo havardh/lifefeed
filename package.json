@@ -1,0 +1,11 @@
+{
+  "name": "lifefeed",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf server/src/front/public && cd client && yarn build && cp -RT build ../server/src/front/public"
+  },
+  "author": "",
+  "license": "ISC"
+}
