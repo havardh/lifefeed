@@ -118,6 +118,7 @@ class AddItem extends React.Component {
 
     this.setState({uploading: true, failed: false});
     fetch("/api/feed/image", {
+      credentials: "same-origin",
       method: "POST",
       body: formData
     }).then(result => {

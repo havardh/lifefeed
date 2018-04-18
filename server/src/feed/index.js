@@ -3,7 +3,6 @@ import multer from "multer";
 import crypto from "crypto";
 import path from "path";
 import fs from "fs";
-import jpegAutorotate from "jpeg-autorotate";
 import async from "async";
 
 const feed = express();
@@ -20,7 +19,7 @@ var storage = multer.diskStorage({
 });
 
 var upload = multer({
-  storage: storage,
+  storage,
   limits: { fieldSize: 25 * 1024 * 1024 }
 });
 

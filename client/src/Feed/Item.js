@@ -1,6 +1,8 @@
 import React from "react";
 import exif from "exif-js";
 import exif2css from "exif2css";
+import ScrollableAnchor from "react-scrollable-anchor";
+import VisibilitySensor from "react-visibility-sensor";
 
 class Item extends React.Component {
 
@@ -14,9 +16,19 @@ class Item extends React.Component {
     };
 
     return (
-      <div style={{alignItems: "center", width: "100%", display: "flex", marginBottom: "20px"}}>
-        {item.type === "image" && <img style={imageStyle} src={item.src} />}
-      </div>
+      <a href={`#${item.id.replace(/.jp(e)?g/,"")}`}>
+        <ScrollableAnchor id={`${item.id.replace(/.jp(e)?g/,"")}`}>
+          <div style={{alignItems: "center", width: "100%", display: "flex", marginBottom: "20px"}}>
+            <VisibilitySensor>
+              {({isVisible}) =>
+                isVisible
+                  ? (item.type === "image" && <img style={imageStyle} src={item.src} />)
+                  : <div style={imageStyle}>&nbsp;</div>
+              }
+            </VisibilitySensor>
+          </div>
+        </ScrollableAnchor>
+      </a>
     );
   }
 

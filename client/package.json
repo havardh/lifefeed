@@ -10,9 +10,14 @@
     "jquery": "^3.3.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-scripts": "1.1.1"
+    "react-scripts": "1.1.1",
+    "react-scrollable-anchor": "^0.6.1",
+    "react-visibility-sensor": "^3.11.0"
   },
   "proxy": {
+    "/user": {
+      "target": "http://localhost:8080/"
+    },
     "/api": {
       "target": "http://localhost:8080/"
     }

@@ -41,8 +41,8 @@ export default class Feed extends React.Component {
       modal: undefined
     });
 
-    if (shouldFetch) {      
-      fetch("/api/feed/images")
+    if (shouldFetch) {
+      fetch("/api/feed/images", {credentials: "same-origin"})
         .then(res => res.json())
         .then(({items}) => {
         this.setState({items});
@@ -51,7 +51,7 @@ export default class Feed extends React.Component {
   }
 
   componentDidMount() {
-    fetch("/api/feed/images")
+    fetch("/api/feed/images", {credentials: "same-origin"})
       .then(res => res.json())
       .then(({items}) => {
       this.setState({items});
