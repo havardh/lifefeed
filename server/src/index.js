@@ -35,7 +35,7 @@ const smtpServer = email.server.connect(details);
 passwordless.init(new PostgreStore("postgres://postgres:postgres@localhost/lifefeed"), {allowTokenReuse:true});
 console.log("adding delivery")
 passwordless.addDelivery((tokenToSend, uidToSend, recipient, callback) => {
-  const host = "localhost:3000";
+  const host = process.env.NODE_ENV === "production" ? "lifefeed.havardh.xyz" : "localhost:3000";
   const url = `http://${host}/user/auth?token=${tokenToSend}&uid=${encodeURIComponent(uidToSend)}`;
 
   smtpServer.send({
