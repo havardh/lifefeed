@@ -1,0 +1,11 @@
+[Unit]
+Description=lifefeed.havardh.xyz
+After=network.target
+
+[Service]
+Environment=NODE_ENV=production
+WorkingDirectory=/home/havard/apps/lifefeed/server
+ExecStart=/usr/bin/node index.js
+
+[Install]
+WantedBy=multi-user.target
