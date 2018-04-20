@@ -2,7 +2,7 @@ import React from "react";
 import exif from "exif-js";
 import exif2css from "exif2css";
 import rotate from "./RotateImage";
-
+import "formdata-polyfill";
 
 const modalStyle = {
   position: "fixed",
