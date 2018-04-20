@@ -2,6 +2,7 @@ import React from "react";
 import exif from "exif-js";
 import exif2css from "exif2css";
 import rotate from "./RotateImage";
+import Spinner from "../Spinner";
 import "formdata-polyfill";
 
 const modalStyle = {
@@ -94,7 +95,8 @@ class Preview extends React.Component {
       <div style={previewStyle}>
         <span style={previewLabelStyle}>{ellipsis(file.name)}</span>
         <img style={previewImageStyle} src={src} />
-      </div>);
+      </div>
+    );
   }
 
 }
@@ -105,7 +107,8 @@ class AddItem extends React.Component {
     super(props);
     this.state = {
       files: [],
-      uploading: true,
+      transforming: false,
+      uploading: false,
       failed: false
     }
   }
@@ -119,7 +122,7 @@ class AddItem extends React.Component {
     this.setState({uploading: true, failed: false});
     fetch("/api/feed/image", {
       credentials: "same-origin",
-      method: "POST",
+      method: "PUT",
       body: formData
     }).then(result => {
       this.setState({uploading: false});
@@ -134,18 +137,21 @@ class AddItem extends React.Component {
   onChange = (e) => {
     const {files} = e.target;
 
+    this.setState({transforming: true});
+
     const promises = [];
     for (let file of files) {
       promises.push(rotate(file));
     }
+
     Promise.all(promises)
-      .then(files => this.setState({files})
-    );
+      .then(files => this.setState({files}))
+      .then(() => this.setState({transforming: false}));
   }
 
   render() {
     const {onClose} = this.props;
-    const {files, uploading, failed} = this.state;
+    const {files, uploading, failed, transforming} = this.state;
 
     return (
       <div style={modalStyle}>
@@ -156,9 +162,14 @@ class AddItem extends React.Component {
           onChange={this.onChange}
         />
 
-        <div style={previewsStyle}>
-          {toArray(files).map(file => (<Preview key={file.name} file={file}/>))}
-        </div>
+        {transforming ?
+          <div><Spinner /></div> :
+          <div style={previewsStyle}>
+            {toArray(files).map(file => (<Preview key={file.name} file={file}/>))}
+          </div>
+        }
+
+        {uploading && <div><Spinner /></div>}
 
         <div style={{position: "absolute", bottom: 0}}>
           <button style={buttonStyle} onClick={this.onUpload}>Upload</button>
