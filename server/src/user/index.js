@@ -16,7 +16,7 @@ user.post("/login",
   passwordless.requestToken(
     function(email, delivery, callback) {
       User.findByEmail(email)
-        .then(user => callback(null, user))
+        .then(user => callback(null, user.email))
         .catch(() => callback(null, null));
     },
     { failureRedirect: '/user/denied' }
@@ -51,3 +51,4 @@ user.get("/signup", function (req, res) {
 user.post("/signup", (req, res) => res.end());
 
 export default user;
+export { User };

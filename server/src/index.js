@@ -8,7 +8,7 @@ const pgSession = require('connect-pg-simple')(session);
 import email from "emailjs";
 
 import front from "./front";
-import user from "./user";
+import user, {User} from "./user";
 import feed from "./feed";
 
 import details from "./details.json";
@@ -59,6 +59,16 @@ Følg denne lenken for å logge in: ${url}
 });
 app.use(passwordless.sessionSupport());
 app.use(passwordless.acceptToken({ successRedirect: "/"}));
+app.use((req, res, next) => {
+  if (req.user) {
+    User.findByEmail(req.user)
+      .then(user => res.locals.user = user)
+      .catch(err => console.error(err))
+      .finally(() => next());
+  } else {
+    next();
+  }
+})
 
 // Setup router
 const router = express.Router();

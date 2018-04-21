@@ -4,6 +4,9 @@ import crypto from "crypto";
 import path from "path";
 import fs from "fs";
 import async from "async";
+import uuidv4 from "uuid/v4";
+
+import * as Item from "./service";
 
 const feed = express();
 
@@ -13,45 +16,60 @@ var storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     crypto.pseudoRandomBytes(16, function (err, raw) {
-      cb(null, raw.toString('hex') + Date.now() + path.extname(file.originalname).toLowerCase());
+      cb(null, uuidv4() + path.extname(file.originalname).toLowerCase());
     });
   }
 });
 
+/*function fileFilter(req, file, cb) {
+
+  if (file.mimetype)
+  console.log(file);
+  cb(null, true);
+}*/
+
 var upload = multer({
   storage,
+  //fileFilter,
   limits: { fieldSize: 25 * 1024 * 1024 }
 });
 
-const store = [];
+feed.put("/image", upload.array('files[]'), (req, res) => {
+  const user = res.locals.user;
+  const create = (file) => Item.create(file, user);
 
-feed.get("/", (req, res) => {
-  res.json(store);
-  res.end();
+  Promise.all(req.files.map(create))
+    .then(items => {
+      res.json({items});
+      res.end();
+    })
+    .catch(err => {
+      res.json({err});
+      res.end();
+    });
 });
 
-feed.post("/image", upload.array('files[]'), (req, res) => {
-  res.json(req.files);
-  res.end();
+feed.post("/image", (req, res) => {
+  Item.update(item)
+    .then(item => {
+      res.json({item});
+      res.end();
+    })
+    .catch(err => {
+      res.json({err});
+      res.end();
+    });
 });
 
 feed.get("/images", (req, res) => {
-  fs.readdir("./files", (err, files) => {
-    if (err) {
+  Item.all()
+    .then(items => {
+      res.json({items});
+      res.end();
+    }).catch(err => {
       res.json({err});
       res.end();
-      return;
-    }
-
-    const items = files.map(file => ({
-      id: file,
-      type: "image",
-      src: "/api/feed/image/" + file
-    }))
-
-    res.json({items});
-    res.end();
-  });
+    });
 });
 
 feed.use("/image", express.static("./files"));

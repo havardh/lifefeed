@@ -1,11 +1,10 @@
-CREATE TABLE passwordless
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE users
 (
-  id serial NOT NULL,
-  uid character varying(160),
-  token character varying(60) NOT NULL,
-  origin text,
-  ttl bigint,
-  CONSTRAINT passwordless_pkey PRIMARY KEY (id),
-  CONSTRAINT passwordless_token_key UNIQUE (token),
-  CONSTRAINT passwordless_uid_key UNIQUE (uid)
+  id uuid DEFAULT uuid_generate_v4(),
+  email character varying(160) NOT NULL,
+  role character varying(20) NOT NULL,
+  CONSTRAINT users_uid PRIMARY KEY (id),
+  CONSTRAINT users_email UNIQUE (email)
 );
