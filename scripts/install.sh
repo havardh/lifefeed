@@ -10,4 +10,5 @@ popd
 psql postgres://postgres:postgres@localhost/lifefeed < server/src/user/users.sql
 psql postgres://postgres:postgres@localhost/lifefeed < server/src/user/passwordless.sql
 psql postgres://postgres:postgres@localhost/lifefeed < server/src/feed/items.sql
+psql postgres://postgres:postgres@localhost/lifefeed < server/src/tag/tags.sql
 psql postgres://postgres:postgres@localhost/lifefeed < server/node_modules/connect-pg-simple/table.sql
