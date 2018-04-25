@@ -1,7 +1,7 @@
 import React from "react";
 import { Subscribe } from "unstated";
 import FileListContainer from "./FileList";
-
+import * as Service from "../Service";
 
 const itemStyle = {
   display: "flex",
@@ -23,9 +23,7 @@ export default class Tags extends React.Component {
   }
 
   update = () => {
-    fetch("/api/tag/all", {
-      credentials: "same-origin"
-    })
+    Service.get("/api/tag/all")
       .then(res => res.json())
       .then(({tags}) => {
         this.setState({tags});
@@ -40,16 +38,14 @@ export default class Tags extends React.Component {
   createTag = () => {
     const {name} = this.state;
 
-    fetch("/api/tag/create", {
-      credentials: "same-origin",
-      method: "PUT",
-      headers: {
-        'Content-Type': "application/json",
-      },
-      body: JSON.stringify({name})
-    }).then(result => {
-      this.update();
-    });
+    Service.put({
+      url: "/api/tag/create",
+      body: JSON.stringify({name}),
+      headers: {'Content-Type': "application/json"}
+    })
+      .then(result => {
+        this.update();
+      });
   }
 
 

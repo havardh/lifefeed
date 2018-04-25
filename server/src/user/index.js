@@ -37,6 +37,10 @@ user.get("/auth",
   }
 );
 
+user.get("/auth-error", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "views/auth-error.html"))
+});
+
 user.get("/logout",
   passwordless.logout(),
   function(req, res) {

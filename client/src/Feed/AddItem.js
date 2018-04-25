@@ -7,6 +7,7 @@ import "formdata-polyfill";
 import { Subscribe, Container } from "unstated";
 import Spinner from "../Spinner";
 import FileListContainer from "./FileList";
+import * as Service from "../Service";
 
 const buttonStyle = {
   margin: "10px",
@@ -162,10 +163,8 @@ class Form extends React.Component {
     formData.append('metadata', JSON.stringify(metadata));
 
     this.setState({uploading: true, failed: false});
-    fetch("/api/feed/image", {
-      credentials: "same-origin",
-      method: "PUT",
-      body: formData
+    Service.put({
+      url: "/api/feed/image", body: formData
     }).then(result => {
       this.setState({uploading: false});
       if (result.status === 200) {

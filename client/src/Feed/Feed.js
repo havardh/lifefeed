@@ -4,6 +4,7 @@ import {Link} from "react-router-dom";
 import Item from "./Item";
 import ShowModal from "./ShowModal";
 import AddItem from "./AddItem";
+import * as Service from "../Service";
 
 function queryDict() {
   /* eslint-disable no-restricted-globals */
@@ -58,7 +59,7 @@ export default class Feed extends React.Component {
     const query = queryDict();
     const url = createUrl(base, query.tags);
 
-    fetch(url, {credentials: "same-origin"})
+    Service.get(url)
       .then(res => res.json())
       .then(({items}) => {
       this.setState({items});
@@ -77,7 +78,7 @@ export default class Feed extends React.Component {
   search = () => {
     const {tags} = this.state;
     const url = createUrl(document.location.href, tags);
-    
+
     window.location.href = url.toString();
   }
 

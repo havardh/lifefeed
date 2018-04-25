@@ -27,7 +27,7 @@ app.use(session({
   cookie: { maxAge: 30*24*60*60*1000 }
 }));
 app.use(cookieParser());
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({extended: false}));
 
 const smtpServer = email.server.connect(details);
@@ -62,13 +62,24 @@ app.use(passwordless.sessionSupport());
 app.use(passwordless.acceptToken({ successRedirect: "/"}));
 app.use((req, res, next) => {
   if (req.user) {
-    console.log(req.user)
     User.findByEmail(req.user)
-      .then(user => res.locals.user = user)
-      .catch(err => console.error(err))
-      .finally(() => next());
+      .then(user => {
+        if (user && user.id && user.email && user.role) {
+          res.locals.user = user
+          next();
+        } else {
+          passwordless.logout()(req, res, () => {
+            res.status(401);
+            res.json({errorRedirect: "/user/auth-error"});
+            res.end();
+          });
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        next()
+      });
   } else {
-    console.log("Req without user at", req.route.path);
     next();
   }
 })
