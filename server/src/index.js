@@ -10,6 +10,7 @@ import email from "emailjs";
 import front from "./front";
 import user, {User} from "./user";
 import feed from "./feed";
+import tag from "./tag";
 
 import details from "./details.json";
 
@@ -61,11 +62,13 @@ app.use(passwordless.sessionSupport());
 app.use(passwordless.acceptToken({ successRedirect: "/"}));
 app.use((req, res, next) => {
   if (req.user) {
+    console.log(req.user)
     User.findByEmail(req.user)
       .then(user => res.locals.user = user)
       .catch(err => console.error(err))
       .finally(() => next());
   } else {
+    console.log("Req without user at", req.route.path);
     next();
   }
 })
@@ -76,6 +79,7 @@ router.use("/", front);
 router.use("/user", user);
 router.use("/api", passwordless.restricted());
 router.use("/api/feed", feed);
+router.use("/api/tag", tag);
 app.use(router);
 
 app.listen(8080, () => {

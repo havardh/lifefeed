@@ -20,10 +20,10 @@ export async function all() {
   }
 }
 
-export async function link(tagId, itemId) {
+export async function link({tagId, itemId}) {
   try {
     const res = await db.query(
-      "insert into items_tags (tag_id, item_id) values ($1)",
+      "insert into items_tags (tag_id, item_id) values ($1, $2)",
       [tagId, itemId]
     );
     return res.rows[0];

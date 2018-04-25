@@ -1,8 +1,9 @@
 import express from "express";
 const tag = express.Router();
-import Tag from "./service";
+import * as Tag from "./service";
 
 tag.put("/create", (req, res) => {
+  console.log(req.body)
   Tag.create(req.body.name)
     .then(tag => {
       res.json({tag});
@@ -38,3 +39,5 @@ tag.post("/link", () => {
         res.end();
       });
 });
+
+export default tag;

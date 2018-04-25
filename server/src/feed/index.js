@@ -34,16 +34,32 @@ var upload = multer({
   limits: { fieldSize: 25 * 1024 * 1024 }
 });
 
+function tagsFor(metadata, file) {
+  for (let data of JSON.parse(metadata)) {
+    if (data.file.name === file.originalname && data.file.size === file.size) {
+      return data.tags;
+    }
+  }
+  return [];
+}
+
 feed.put("/image", upload.array('files[]'), (req, res) => {
   const user = res.locals.user;
-  const create = (file) => Item.create(file, user);
+
+  const {metadata} = req.body;
+  const create = (file) => Item.create(file, {
+    user,
+    tags: tagsFor(metadata, file)
+  });
 
   Promise.all(req.files.map(create))
     .then(items => {
+      console.log("Created", items)
       res.json({items});
       res.end();
     })
     .catch(err => {
+      console.error(err)
       res.json({err});
       res.end();
     });
@@ -62,14 +78,25 @@ feed.post("/image", (req, res) => {
 });
 
 feed.get("/images", (req, res) => {
-  Item.all()
-    .then(items => {
-      res.json({items});
-      res.end();
-    }).catch(err => {
-      res.json({err});
-      res.end();
-    });
+  if (req.query.tags) {
+    Item.query(req.query.tags)
+      .then(items => {
+        res.json({items});
+        res.end();
+      }).catch(err => {
+        res.json({err});
+        res.end();
+      });
+  } else {
+    Item.all()
+      .then(items => {
+        res.json({items});
+        res.end();
+      }).catch(err => {
+        res.json({err});
+        res.end();
+      });
+  }
 });
 
 feed.use("/image", express.static("./files"));

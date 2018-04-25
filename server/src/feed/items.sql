@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE items
 (
   id uuid DEFAULT uuid_generate_v4(),
-  publised_at TIMESTAMP DEFAULT NOW(),
+  published_at TIMESTAMP DEFAULT NOW(),
   type character varying(20) NOT NULL,
   size int NOT NULL,
   content text NOT NULL,

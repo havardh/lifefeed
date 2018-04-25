@@ -1,43 +1,41 @@
 import React from "react";
+import {Link} from "react-router-dom"
+import {find} from "lodash";
 import exif from "exif-js";
 import exif2css from "exif2css";
-import rotate from "./RotateImage";
-import Spinner from "../Spinner";
 import "formdata-polyfill";
-
-const modalStyle = {
-  position: "fixed",
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right:0,
-  backgroundColor: "white",
-  border: "10px solid #EEE",
-  width: "85%",
-  height: "85%",
-  padding: "20px",
-
-  margin: "auto",
-};
+import { Subscribe, Container } from "unstated";
+import Spinner from "../Spinner";
+import FileListContainer from "./FileList";
 
 const buttonStyle = {
   margin: "10px",
   width: "100px",
-  height: "40px"
+  height: "40px",
+}
+
+const uploadLabelStyle = {
+  margin: "10px",
+  width: "100px",
+  height: "40px",
+  border: "1px solid #000",
+  background: "#ddd",
+  display: "inline-block"
 }
 
 const previewsStyle = {
   display: "grid",
-  gridAutoFlow: "column",
+  gridAutoFlow: "row",
   overflow: "auto",
   height: "80%",
   width: "80%"
 }
 
 const previewStyle = {
-  border: "5px solid #EEE",
-  padding: "5px",
-  width: "100px",
+  border: "1px solid #EEE",
+  padding: "2px",
+  margin: "2px",
+  width: "100vv",
   height: "100px"
 }
 
@@ -49,9 +47,7 @@ const previewImageStyle = {
   maxHeight: "80px",
   maxWidth: "80px",
   height: "auto",
-  width: "auto",
-  display: "block",
-  margin: "auto"
+  width: "auto"
 };
 
 function toArray(files) {
@@ -65,18 +61,37 @@ function toArray(files) {
 }
 
 function ellipsis(text) {
-  if (text.length > 12) {
-    return text.substr(0, 4) + "..." + text.substr(text.length-5);
+
+  if (text.length > 30) {
+    return text.substr(0, 25) + "..." + text.substr(text.length-5);
   } else {
     return text;
   }
 }
 
+const tagStyle = {
+  margin: "5px",
+  height: "20px",
+  padding: "2px",
+  backgroundColor: "#EEE",
+  borderRadius: "5px"
+};
+
+const Tag = ({children}) => (
+  <div style={tagStyle}>{children}</div>
+);
+
+const TagList = ({tags}) => (
+  <div style={{height: "100px", display: "flex", flexWrap: "wrap"}}>
+    {tags.map(({id, name}) => <Tag key={id}>{name}</Tag>)}
+  </div>
+);
+
 class Preview extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {src: ''};
+    this.state = {src: '', selected: false};
 
     const {file} = props;
     const fileReader = new FileReader();
@@ -87,37 +102,64 @@ class Preview extends React.Component {
     fileReader.readAsDataURL(file);
   }
 
+  onClick = () => {
+    this.setState(
+      ({selected}) => ({selected: !selected}),
+      () => this.props.onSelectionChange(this.state.selected)
+    );
+  }
+
   render() {
     const {file} = this.props;
     const {src} = this.state;
 
     return (
-      <div style={previewStyle}>
+      <div style={previewStyle} onClick={this.onClick}>
         <span style={previewLabelStyle}>{ellipsis(file.name)}</span>
-        <img style={previewImageStyle} src={src} />
+        <div style={{display: "flex"}}>
+          <div style={{width: "80px", height: "100px"}}>
+            <input
+              style={{width: "60px", height: "60px", margin: "15px 10px"}}
+              type="checkbox"
+              readOnly
+              checked={this.props.selected}
+            />
+          </div>
+          <img style={previewImageStyle} src={src} />
+          <TagList tags={this.props.tags || []} />
+        </div>
       </div>
     );
   }
 
 }
 
-class AddItem extends React.Component {
+class Form extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      files: [],
-      transforming: false,
       uploading: false,
       failed: false
     }
   }
 
   onUpload = () => {
+    const {fileList} = this.props;
+
+    const files = fileList.state.files.map(({file}) => file);
+
     const formData = new FormData();
-    for (let file of this.state.files) {
+    for (let file of files) {
       formData.append('files[]', file, file.name);
     }
+
+    const metadata = fileList.state.files.map(({file, tags}) => ({
+      file: {name: file.name, size: file.size},
+      tags
+    }));
+
+    formData.append('metadata', JSON.stringify(metadata));
 
     this.setState({uploading: true, failed: false});
     fetch("/api/feed/image", {
@@ -127,56 +169,90 @@ class AddItem extends React.Component {
     }).then(result => {
       this.setState({uploading: false});
       if (result.status === 200) {
-        this.props.onClose({shouldFetch: true});
+        this.onClose({shouldFetch: true});
       } else {
         this.setState({failed: true, debug: result});
       }
     });
   }
 
-  onChange = (e) => {
-    const {files} = e.target;
+  onChangeTags = () => {
+    const {history} = this.props;
+    history.push("/tags")
+  }
 
-    this.setState({transforming: true});
+  onClose = () => {
+    const {history} = this.props;
 
-    const promises = [];
-    for (let file of files) {
-      promises.push(rotate(file));
-    }
-
-    Promise.all(promises)
-      .then(files => this.setState({files}))
-      .then(() => this.setState({transforming: false}));
+    history.goBack();
   }
 
   render() {
-    const {onClose} = this.props;
-    const {files, uploading, failed, transforming} = this.state;
+    const {fileList} = this.props;
+    const {uploading, failed} = this.state;
 
     return (
-      <div style={modalStyle}>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={this.onChange}
-        />
+      <div>
+        <div>
+          <div>
+            <div>
+              <label style={uploadLabelStyle}>
+                <span>Legg til bilder</span>
+                <input
+                  style={{display: "none"}}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={({target}) => fileList.setFiles(target)}
+                />
+              </label>
+            </div>
 
-        {transforming ?
-          <div><Spinner /></div> :
-          <div style={previewsStyle}>
-            {toArray(files).map(file => (<Preview key={file.name} file={file}/>))}
-          </div>
-        }
+            <button
+              style={buttonStyle}
+              onClick={this.onChangeTags}
+            >
+              Tags
+            </button>
 
-        {uploading && <div><Spinner /></div>}
+            {fileList.state.transforming ?
+              <div><Spinner /></div> :
+              <div style={previewsStyle}>
+                {fileList.state.files.map(({file, selected, tags}) => (
 
-        <div style={{position: "absolute", bottom: 0}}>
-          <button style={buttonStyle} onClick={this.onUpload}>Upload</button>
-          <button style={buttonStyle} onClick={onClose}>Close</button>
+                  <Preview
+                    key={file.name}
+                    file={file}
+                    selected={selected}
+                    tags={tags}
+                    onSelectionChange={(selection) => fileList.setSelection(file, selection)}
+                  />
+                ))}
+              </div>}
+            </div>
+
+          {uploading && <div><Spinner /></div>}
         </div>
+
+        <footer>
+          <button style={buttonStyle} onClick={this.onUpload}>Last opp</button>
+          <button style={buttonStyle} onClick={this.onClose}>Avbryt</button>
+        </footer>
       </div>
     );
+  }
+
+}
+
+class AddItem extends React.Component {
+  render() {
+    const {history} = this.props;
+
+    return (<Subscribe to={[FileListContainer]}>
+      {fileList => (
+        <Form fileList={fileList} history={history} />
+      )}
+    </Subscribe>);
   }
 }
 

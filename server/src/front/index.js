@@ -5,7 +5,6 @@ const front = express.Router();
 
 
 front.get("/", (req, res) => {
-  console.log(req.user)
   if (!req.user) {
     return res.redirect("/user/landing");
   }
