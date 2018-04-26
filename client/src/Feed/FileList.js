@@ -57,12 +57,11 @@ export default class FileListContainer extends Container {
       });
   }
 
-  setSelection(file, selected) {
-    console.log(selected);
+  setSelection(file) {
     this.setState(({files}) => ({
       files: files.map(fileRecord => {
         if (equalsFile(file)(fileRecord.file)) {
-          fileRecord.selected = selected;
+          fileRecord.selected = !fileRecord.selected;
         }
         return fileRecord;
       })

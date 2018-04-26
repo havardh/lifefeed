@@ -1,5 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import FontAwesome from "react-fontawesome";
 
 import Item from "./Item";
 import ShowModal from "./ShowModal";
@@ -39,10 +40,22 @@ const FeedList = ({items}) => (
   </ul>
 )
 
-const Add = () => (
+const addButtonStyle = {
+  backgroundColor: "#d23f31",
+  color: "#FFF",
+  borderRadius: "50%",
+  outline: "none",
+  border: "none",
+  width: "60px",
+  height: "60px",
+  fontSize: "1.4em",
+  boxShadow: "0px 2px 10px 0px rgba(0,0,0,0.5)"
+};
+
+const Add = ({history}) => (
   <div style={{position: "fixed", bottom: "30px", right: "30px", top: "auto", left: "auto", margin: "auto"}}>
-    <button style={{backgroundColor: "#F44336", color: "#FFF", borderRadius: "50%", border: "2px solid #EEE",  width: "60px", height: "60px"}}>
-      <Link to="/add">+</Link>
+    <button style={addButtonStyle} onClick={() => history.push("/add")}>
+      +
     </button>
   </div>
 );
@@ -92,18 +105,47 @@ export default class Feed extends React.Component {
       tagString = tags.join(" ")
     }
 
+    const wrapperStyle = {
+      boxSizing: "border-box",
+      margin: 0,
+      padding: 0,
+      display: "flex"
+    };
+    const inputStyle = {
+      boxSizing: "border-box",
+      margin: 0,
+      padding: "0 10px",
+      fontSize: "1.2em",
+      height: "40px",
+      flex: 1
+    };
+    const buttonStyle = {
+      boxSizing: "border-box",
+      margin: 0,
+      padding: 0,
+      height: "40px",
+      flex: 0,
+      padding: "0px 25px"
+    };
+
     return (
       <div>
-        <input
-          style={{width: "78%", height: "40px"}}
-          defaultValue={tagString}
-          placeholder={"Søk etter tags"}
-          onChange={this.onChange}
-        />
-        <button  style={{width: "20%", height: "40px"}} onClick={this.search}>Søk</button>
+        <div style={wrapperStyle}>
+          <input
+            style={inputStyle}
+            defaultValue={tagString}
+            placeholder={"Søk etter tags"}
+            onChange={this.onChange}
+          />
+          <button style={buttonStyle} onClick={this.search}>
+            <FontAwesome name="search" />
+          </button>
+        </div>
 
-        <FeedList items={items}/>
-        <Add />
+        <div style={{marginTop: "20px"}}>
+          <FeedList items={items}/>
+        </div>
+        <Add history={this.props.history} />
       </div>
     )
   }

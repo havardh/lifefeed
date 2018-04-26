@@ -5,51 +5,17 @@ import exif from "exif-js";
 import exif2css from "exif2css";
 import "formdata-polyfill";
 import { Subscribe, Container } from "unstated";
+import FontAwesome from "react-fontawesome";
+
 import Spinner from "../Spinner";
 import FileListContainer from "./FileList";
 import * as Service from "../Service";
 
-const buttonStyle = {
-  margin: "10px",
-  width: "100px",
-  height: "40px",
-}
-
-const uploadLabelStyle = {
-  margin: "10px",
-  width: "100px",
-  height: "40px",
-  border: "1px solid #000",
-  background: "#ddd",
-  display: "inline-block"
-}
-
 const previewsStyle = {
   display: "grid",
   gridAutoFlow: "row",
-  overflow: "auto",
-  height: "80%",
-  width: "80%"
+  overflow: "hidden"
 }
-
-const previewStyle = {
-  border: "1px solid #EEE",
-  padding: "2px",
-  margin: "2px",
-  width: "100vv",
-  height: "100px"
-}
-
-const previewLabelStyle = {
-  textOverflow: "ellipsis"
-}
-
-const previewImageStyle = {
-  maxHeight: "80px",
-  maxWidth: "80px",
-  height: "auto",
-  width: "auto"
-};
 
 function toArray(files) {
   const array = [];
@@ -92,7 +58,7 @@ class Preview extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {src: '', selected: false};
+    this.state = {src: ''};
 
     const {file} = props;
     const fileReader = new FileReader();
@@ -104,28 +70,40 @@ class Preview extends React.Component {
   }
 
   onClick = () => {
-    this.setState(
-      ({selected}) => ({selected: !selected}),
-      () => this.props.onSelectionChange(this.state.selected)
-    );
+    this.props.onSelectionChange(this.props.file);
   }
 
   render() {
-    const {file} = this.props;
+    const {file, selected} = this.props;
     const {src} = this.state;
+
+    const previewStyle = {
+      backgroundColor: "#eee",
+      minWidth: "250px",
+      padding: "5px",
+      margin: "1px 2px",
+      height: "100px"
+    }
+
+    const previewLabelStyle = {
+      textOverflow: "ellipsis"
+    }
+
+    const previewImageStyle = {
+      maxHeight: "80px",
+      maxWidth: "80px",
+      height: "auto",
+      width: "auto"
+    };
 
     return (
       <div style={previewStyle} onClick={this.onClick}>
         <span style={previewLabelStyle}>{ellipsis(file.name)}</span>
         <div style={{display: "flex"}}>
-          <div style={{width: "80px", height: "100px"}}>
-            <input
-              style={{width: "60px", height: "60px", margin: "15px 10px"}}
-              type="checkbox"
-              readOnly
-              checked={this.props.selected}
-            />
-          </div>
+        <div style={{height: "80px", verticalAlign: "middle", marginLeft: "10px", marginRight: "10px"}}>
+          {selected && <FontAwesome style={{lineHeight: "80px"}} size="2x" name="check-square" />}
+          {!selected && <FontAwesome style={{lineHeight: "80px"}} size="2x" name="square" />}
+        </div>
           <img style={previewImageStyle} src={src} />
           <TagList tags={this.props.tags || []} />
         </div>
@@ -190,41 +168,58 @@ class Form extends React.Component {
     const {fileList} = this.props;
     const {uploading, failed} = this.state;
 
+    const buttonStyle = {
+      display: "inline-block",
+      cursor: "pointer",
+      backgroundColor: "#eee",
+      border: "1px solid #fff",
+      padding: "0 28px",
+      fontSize: "15px",
+      margin: "10px",
+      width: "100px",
+      height: "40px",
+      lineHeight: "40px",
+      textAlign: "center",
+      verticalAlign: "middle",
+      fontFamily: "Roboto"
+    };
+
     return (
       <div>
-        <div>
+        <div style={{marginBottom: "60px"}}>
+          <div style={{display: "inline-block"}}>
+            <label>
+              <a style={buttonStyle}>Legg til</a>
+              <input
+                style={{display: "none"}}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={({target}) => fileList.setFiles(target)}
+              />
+            </label>
+          </div>
+
+          <a
+            style={buttonStyle}
+            onClick={this.onChangeTags}
+          >
+            Tags
+          </a>
+
           <div>
-            <div>
-              <label style={uploadLabelStyle}>
-                <span>Legg til bilder</span>
-                <input
-                  style={{display: "none"}}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={({target}) => fileList.setFiles(target)}
-                />
-              </label>
-            </div>
-
-            <button
-              style={buttonStyle}
-              onClick={this.onChangeTags}
-            >
-              Tags
-            </button>
-
             {fileList.state.transforming ?
-              <div><Spinner /></div> :
+              <div style={{width: "100%", height: "50hw"}}>
+                <Spinner />
+              </div> :
               <div style={previewsStyle}>
                 {fileList.state.files.map(({file, selected, tags}) => (
-
                   <Preview
                     key={file.name}
                     file={file}
                     selected={selected}
                     tags={tags}
-                    onSelectionChange={(selection) => fileList.setSelection(file, selection)}
+                    onSelectionChange={(file) => fileList.setSelection(file)}
                   />
                 ))}
               </div>}
@@ -233,9 +228,11 @@ class Form extends React.Component {
           {uploading && <div><Spinner /></div>}
         </div>
 
-        <footer>
-          <button style={buttonStyle} onClick={this.onUpload}>Last opp</button>
-          <button style={buttonStyle} onClick={this.onClose}>Avbryt</button>
+        <footer style={{backgroundColor: "#fff", position: "fixed", bottom: "0px", height: "60px", width: "100%"}}>
+          <a style={buttonStyle} onClick={this.onUpload}>
+            Last opp {uploading && <Spinner />}
+          </a>
+          <a style={buttonStyle} onClick={this.onClose}>Avbryt</a>
         </footer>
       </div>
     );

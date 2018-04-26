@@ -1,15 +1,16 @@
 import React from "react";
 import { Subscribe } from "unstated";
+import FontAwesome from "react-fontawesome";
+
 import FileListContainer from "./FileList";
 import * as Service from "../Service";
 
 const itemStyle = {
   display: "flex",
   height: "40px",
-  margin: "1px",
+  margin: "1px 2px",
   padding: "5px",
-  backgroundColor: "#f1f1f1",
-  border: "1px solid #111"
+  backgroundColor: "#eee"
 }
 export default class Tags extends React.Component {
 
@@ -48,23 +49,44 @@ export default class Tags extends React.Component {
       });
   }
 
-
-  onClick = () => {
-    const {history} = this.props;
-    history.goBack();
-  }
-
   render() {
     const {tags} = this.state;
 
+    const wrapperStyle = {
+      boxSizing: "border-box",
+      margin: 0,
+      padding: 0,
+      display: "flex"
+    };
+    const inputStyle = {
+      boxSizing: "border-box",
+      margin: 0,
+      padding: "0 10px",
+      fontSize: "1.2em",
+      height: "40px",
+      flex: 1
+    };
+    const buttonStyle = {
+      boxSizing: "border-box",
+      margin: 0,
+      padding: 0,
+      height: "40px",
+      flex: 0,
+      padding: "0px 25px"
+    };
+    const iconStyle = {
+      lineHeight: "40px"
+    }
+
     return (
       <div>
-        <button style={{width: "100px", height: "40px"}} onClick={this.onClick}>{"<"}</button>
-        <div>
-          <input style={{width: "78%", height: "40px"}} onChange={this.onUpdate}></input>
-          <button style={{width: "20%", height: "40px"}} onClick={this.createTag}>Lag ny</button>
+        <div style={wrapperStyle}>
+          <input style={inputStyle} onChange={this.onUpdate}></input>
+          <button style={buttonStyle} onClick={this.createTag}>
+            <FontAwesome name="plus" />
+          </button>
         </div>
-        <ul style={{listStyleType: "none"}}>
+        <ul style={{listStyleType: "none", marginTop: "20px"}}>
           {tags.map((tag) =>
             <li key={tag.id} style={{overflow: "auto"}}>
               <Subscribe to={[FileListContainer]}>
@@ -73,12 +95,12 @@ export default class Tags extends React.Component {
                    style={itemStyle}
                    onClick={() => fileList.all(tag) ? fileList.removeTag(tag) : fileList.addTag(tag)}
                   >
-                    <div>
-                      {fileList.all(tag) && <span>✔️</span>}
-                      {fileList.some(tag) && !fileList.all(tag) && <span>➖</span>}
-                      {fileList.none(tag) && <span>☐</span>}
+                    <div style={{height: "40px", verticalAlign: "middle"}}>
+                      {fileList.all(tag) && <FontAwesome style={iconStyle} size="2x" name="check-square" />}
+                      {fileList.some(tag) && !fileList.all(tag) && <FontAwesome style={iconStyle} size="2x" name="minus-square" />}
+                      {fileList.none(tag) && <FontAwesome style={iconStyle} size="2x" name="square" />}
                     </div>
-                    <div>{tag.name}</div>
+                    <div style={{lineHeight: "40px", marginLeft: "10px"}}>{tag.name}</div>
                   </div>
                 )}
               </Subscribe>
