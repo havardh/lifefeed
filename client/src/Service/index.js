@@ -23,6 +23,7 @@ export function put({url, body, headers}) {
   return fetch(url, {
     credentials: "same-origin",
     method: "PUT",
+    headers,
     body
   }).then(redirectOn401);
 }
