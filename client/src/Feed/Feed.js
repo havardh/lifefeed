@@ -1,6 +1,7 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import FontAwesome from "react-fontawesome";
+import Downshift from "downshift";
 
 import Item from "./Item";
 import ShowModal from "./ShowModal";
@@ -60,6 +61,62 @@ const Add = ({history}) => (
   </div>
 );
 
+function TagInput({items, onChange, defaultValue}) {
+
+  const inputStyle = {
+    boxSizing: "border-box",
+    margin: 0,
+    padding: "0 10px",
+    fontSize: "1.2em",
+    height: "40px",
+    flex: 1
+  };
+
+  return (
+    <Downshift
+      onChange={onChange}
+      itemToString={(item) => item && item.name}
+      defaultInputValue={defaultValue}
+      render={({
+        getInputProps,
+        getItemProps,
+        isOpen,
+        inputValue,
+        selectedItem,
+        highlightedIndex
+      }) => (
+        <div>
+          <input
+            {...getInputProps({placeholder: "Søk etter tags"})}
+            style={inputStyle}
+          />
+
+          {isOpen ? (
+            <div style={{border: "1px solid #eee"}}>
+              {items
+                .filter(
+                  i => !inputValue || i.name.toLowerCase().includes(inputValue.toLowerCase())
+                )
+                .map((item, index) => (
+                  <div
+                    {...getItemProps({item})}
+                    key={item.id}
+                    style={{
+                      backgroundColor: highlightedIndex === index ? "gray" : "white",
+                      fontWeight: (selectedItem && (selectedItem.id === item.id)) ? "bold": "normal",
+                    }}
+                  >
+                    {item.name}
+                  </div>
+                ))}
+            </div>
+          ) : null}
+        </div>
+      )}
+    />
+  );
+}
+
 export default class Feed extends React.Component {
 
   constructor(props) {
@@ -79,12 +136,11 @@ export default class Feed extends React.Component {
     })
   }
 
-  onChange = ({target}) => {
-    const {value} = target;
+  onChange = ({name}) => {
 
-    if (value) {
-      this.setState({tags: value.split(' ')})
-      const tags = value.split(' ');
+    if (name) {
+      this.setState({tags: name.split(' ')})
+      const tags = name.split(' ');
     }
   };
 
@@ -98,11 +154,12 @@ export default class Feed extends React.Component {
   render() {
     const {items} = this.state;
 
-    const {tags} = queryDict();
-
-    let tagString = ""
-    if (tags) {
-      tagString = tags.join(" ")
+    let tagString = "";
+    {
+      const {tags} = queryDict();
+      if (tags) {
+        tagString = tags.join(" ")
+      }
     }
 
     const wrapperStyle = {
@@ -110,14 +167,6 @@ export default class Feed extends React.Component {
       margin: 0,
       padding: 0,
       display: "flex"
-    };
-    const inputStyle = {
-      boxSizing: "border-box",
-      margin: 0,
-      padding: "0 10px",
-      fontSize: "1.2em",
-      height: "40px",
-      flex: 1
     };
     const buttonStyle = {
       boxSizing: "border-box",
@@ -128,15 +177,15 @@ export default class Feed extends React.Component {
       padding: "0px 25px"
     };
 
+    const tags = [
+      {id: 1, name: "Tuva"},
+      {id: 2, name: "Nils"}
+    ];
+
     return (
       <div>
         <div style={wrapperStyle}>
-          <input
-            style={inputStyle}
-            defaultValue={tagString}
-            placeholder={"Søk etter tags"}
-            onChange={this.onChange}
-          />
+          <TagInput items={tags} defaultValue={tagString} onChange={this.onChange} />
           <button style={buttonStyle} onClick={this.search}>
             <FontAwesome name="search" />
           </button>
