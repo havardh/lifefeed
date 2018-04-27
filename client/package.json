@@ -11,6 +11,7 @@
     "jQuery": "^1.7.4",
     "jquery": "^3.3.1",
     "js-cookie": "^2.2.0",
+    "piexifjs": "^1.0.4",
     "query-string": "^6.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
