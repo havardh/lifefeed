@@ -6,6 +6,7 @@ import fs from "fs";
 import async from "async";
 import uuidv4 from "uuid/v4";
 
+import {rotate} from "../image";
 import * as Item from "./service";
 
 const feed = express();
@@ -43,7 +44,7 @@ function tagsFor(metadata, file) {
   return [];
 }
 
-feed.put("/image", upload.array('files[]'), (req, res) => {
+feed.put("/image", upload.array('files[]'), async (req, res) => {
   const user = res.locals.user;
 
   const {metadata} = req.body;
@@ -52,17 +53,23 @@ feed.put("/image", upload.array('files[]'), (req, res) => {
     tags: tagsFor(metadata, file)
   });
 
-  Promise.all(req.files.map(create))
-    .then(items => {
-      console.log("Created", items)
-      res.json({items});
-      res.end();
-    })
-    .catch(err => {
-      console.error(err)
-      res.json({err});
-      res.end();
-    });
+  const rotateContent = async (file) => {
+    await rotate(file.content);
+    return file;
+  };
+
+  try {
+    const allItems = await Promise.all(req.files.map(create));
+    const items = await Promise.all(allItems.map(rotateContent));
+
+    console.log("Created", items)
+    res.json({items});
+    res.end();
+  } catch (err) {
+    console.error(err)
+    res.json({err});
+    res.end();
+  }
 });
 
 feed.post("/image", (req, res) => {

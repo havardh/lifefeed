@@ -2,11 +2,18 @@ import React from "react";
 import {find, uniq, reject, some as _some, includes, every} from "lodash";
 import { Subscribe, Container } from "unstated";
 import rotate from "./RotateImage";
+import resize from "./ResizeImage";
+
+const previewSize = 80;
 
 function rotateFiles(files) {
   const promises = [];
   for (let file of files) {
-    promises.push(rotate(file));
+    promises.push(
+      resize(file, previewSize)
+        .then(rotate)
+        .then(preview => ({ preview, file }))
+    );
   }
 
   return Promise.all(promises);
@@ -33,7 +40,7 @@ export default class FileListContainer extends Container {
   setFiles({files}) {
     this.setState({transforming: true});
     return rotateFiles(files)
-      .then(files => {
+      .then(rotated => {
         /*if (this.state.files.length) {
           this.setState({
             files: files.map(file => {
@@ -47,7 +54,7 @@ export default class FileListContainer extends Container {
           });
         } else {*/
         this.setState({
-          files: files.map(file => ({file, selected: false, tags: []}))
+          files: rotated.map(({file, preview}) => ({file, preview, selected: false, tags: []})),
         });
 
         //}

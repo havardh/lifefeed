@@ -60,13 +60,14 @@ class Preview extends React.Component {
     super(props);
     this.state = {src: ''};
 
-    const {file} = props;
+    const {preview} = props;
+    console.log(props);
     const fileReader = new FileReader();
 
     fileReader.onload = () => {
       this.setState({src: fileReader.result})
     }
-    fileReader.readAsDataURL(file);
+    fileReader.readAsDataURL(preview);
   }
 
   onClick = () => {
@@ -213,10 +214,11 @@ class Form extends React.Component {
                 <Spinner />
               </div> :
               <div style={previewsStyle}>
-                {fileList.state.files.map(({file, selected, tags}) => (
+                {fileList.state.files.map(({file, preview, selected, tags}) => (
                   <Preview
                     key={file.name}
                     file={file}
+                    preview={preview}
                     selected={selected}
                     tags={tags}
                     onSelectionChange={(file) => fileList.setSelection(file)}
