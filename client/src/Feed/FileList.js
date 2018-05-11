@@ -9,14 +9,13 @@ const previewSize = 80;
 function rotateFiles(files) {
   const promises = [];
   for (let file of files) {
-    promises.push(
-      resize(file, previewSize)
-        .then(rotate)
-        .then(preview => ({ preview, file }))
-    );
+    promises.push({
+      file,
+      preview: resize(file, previewSize).then(rotate)
+    });
   }
 
-  return Promise.all(promises);
+  return promises;
 }
 
 function equalsFile(file) {
@@ -32,36 +31,15 @@ function hasTag(tags, tag) {
 }
 
 export default class FileListContainer extends Container {
-  state = {
-    files: [],
-    transforming: false
-  };
+  state = { files: [] };
 
   setFiles({files}) {
-    this.setState({transforming: true});
-    return rotateFiles(files)
-      .then(rotated => {
-        /*if (this.state.files.length) {
-          this.setState({
-            files: files.map(file => {
-              const {selected, tags} = find(
-                this.state.files,
-                equalsFile(file),
-                {selected: false, tags: []}
-              );
-              return {file, tags, selected };
-            })
-          });
-        } else {*/
-        this.setState({
-          files: rotated.map(({file, preview}) => ({file, preview, selected: false, tags: []})),
-        });
-
-        //}
-      })
-      .then(() => {
-        this.setState({transforming: false});
-      });
+    this.setState({
+      files: rotateFiles(files)
+        .map(({file, preview}) => ({
+          file, preview, selected: false, tags: []
+        }))
+    });
   }
 
   setSelection(file) {
