@@ -6,7 +6,8 @@ import fs from "fs";
 import async from "async";
 import uuidv4 from "uuid/v4";
 
-import {rotate} from "../image";
+import rotate from "../image/rotate";
+import resize from "../image/resize";
 import * as Item from "./service";
 
 const feed = express();
@@ -44,7 +45,11 @@ function tagsFor(metadata, file) {
   return [];
 }
 
-feed.put("/image", upload.array('files[]'), async (req, res) => {
+feed.put("/image",
+  upload.array('files[]'),
+  rotate,
+  resize,
+  async (req, res) => {
   const user = res.locals.user;
 
   const {metadata} = req.body;
@@ -53,14 +58,8 @@ feed.put("/image", upload.array('files[]'), async (req, res) => {
     tags: tagsFor(metadata, file)
   });
 
-  const rotateContent = async (file) => {
-    await rotate(file.content);
-    return file;
-  };
-
   try {
-    const allItems = await Promise.all(req.files.map(create));
-    const items = await Promise.all(allItems.map(rotateContent));
+    const items = await Promise.all(req.files.map(create));
 
     console.log("Created", items)
     res.json({items});
@@ -84,25 +83,30 @@ feed.post("/image", (req, res) => {
     });
 });
 
-feed.get("/images", (req, res) => {
-  if (req.query.tags) {
-    Item.query(req.query.tags)
-      .then(items => {
-        res.json({items});
-        res.end();
-      }).catch(err => {
-        res.json({err});
-        res.end();
-      });
-  } else {
-    Item.all()
-      .then(items => {
-        res.json({items});
-        res.end();
-      }).catch(err => {
-        res.json({err});
-        res.end();
-      });
+feed.get("/images", async (req, res) => {
+  function toApi({id, type, content}) {
+    return {
+      id,
+      type,
+      src: "/api/feed/image/" + content.replace("files/", ""),
+      sources: [512, 768, 1024, 1536, 2048]
+        .map(size => ({
+          width: `${size}w`,
+          src: "/api/feed/image/" + content.replace("files/", `${size}/`)
+        }))
+    };
+  }
+
+  try {
+    let items = await (req.query.tags ?
+      Item.query(req.query.tags) :
+      Item.all())
+
+    res.json({items: items.map(toApi)});
+    res.end();
+  } catch (err) {
+    res.json({err});
+    res.end();
   }
 });
 

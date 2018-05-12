@@ -6,11 +6,7 @@ export async function all() {
   try {
     const res = await db.query("select id, type, content from items order by published_at desc");
 
-    return res.rows.map(({id, type, content}) => ({
-      id,
-      type,
-      src: "/api/feed/image/" + content.replace("files/", "")
-    }));
+    return res.rows;
   } catch (err) {
     console.error(err);
     throw err;
@@ -34,11 +30,7 @@ export async function query(tags) {
       order by items.published_at desc
     `, [tags]);
 
-    return res.rows.map(({id, type, content}) => ({
-      id,
-      type,
-      src: "/api/feed/image/" + content.replace("files/", "")
-    }));
+    return res.rows;
   } catch (err) {
     console.error(err);
     throw err;
