@@ -58,15 +58,21 @@ class Preview extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {src: ''};
+    this.state = {
+      src: '',
+      loading: true,
+    };
 
-    const {file} = props;
+    const {preview} = props;
     const fileReader = new FileReader();
 
-    fileReader.onload = () => {
-      this.setState({src: fileReader.result})
-    }
-    fileReader.readAsDataURL(file);
+    preview.then(file => {
+      this.setState({loading: false});
+      fileReader.onload = () => {
+        this.setState({src: fileReader.result})
+      }
+      fileReader.readAsDataURL(file);
+    });
   }
 
   onClick = () => {
@@ -75,7 +81,7 @@ class Preview extends React.Component {
 
   render() {
     const {file, selected} = this.props;
-    const {src} = this.state;
+    const {src, loading} = this.state;
 
     const previewStyle = {
       backgroundColor: "#eee",
@@ -95,6 +101,22 @@ class Preview extends React.Component {
       height: "auto",
       width: "auto"
     };
+
+    if (loading) {
+      return (
+        <div style={previewStyle} onClick={this.onClick}>
+          <span style={previewLabelStyle}>...</span>
+          <div style={{display: "flex"}}>
+          <div style={{height: "80px", verticalAlign: "middle", marginLeft: "10px", marginRight: "10px"}}>
+            {selected && <FontAwesome style={{lineHeight: "80px"}} size="2x" name="check-square" />}
+            {!selected && <FontAwesome style={{lineHeight: "80px"}} size="2x" name="square" />}
+          </div>
+            <Spinner style={previewImageStyle} />
+            <TagList tags={this.props.tags || []} />
+          </div>
+        </div>
+      )
+    }
 
     return (
       <div style={previewStyle} onClick={this.onClick}>
@@ -207,23 +229,18 @@ class Form extends React.Component {
             Tags
           </a>
 
-          <div>
-            {fileList.state.transforming ?
-              <div style={{width: "100%", height: "50hw"}}>
-                <Spinner />
-              </div> :
-              <div style={previewsStyle}>
-                {fileList.state.files.map(({file, selected, tags}) => (
-                  <Preview
-                    key={file.name}
-                    file={file}
-                    selected={selected}
-                    tags={tags}
-                    onSelectionChange={(file) => fileList.setSelection(file)}
-                  />
-                ))}
-              </div>}
-            </div>
+          <div style={previewsStyle}>
+            {fileList.state.files.map(({file, preview, selected, tags}) => (
+              <Preview
+                key={file.name}
+                file={file}
+                preview={preview}
+                selected={selected}
+                tags={tags}
+                onSelectionChange={(file) => fileList.setSelection(file)}
+              />
+            ))}
+          </div>
 
           {uploading && <div><Spinner /></div>}
         </div>

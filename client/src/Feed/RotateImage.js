@@ -1,7 +1,7 @@
 import {getData, getTag} from "exif-js";
+import piexif from "piexifjs";
 
 function resetOrientation(file, srcOrientation) {
-  console.log(file);
   return new Promise(resolve => {
   	const img = new Image();
 
@@ -36,7 +36,13 @@ function resetOrientation(file, srcOrientation) {
       ctx.drawImage(img, 0, 0);
 
   		// export base64
-  		resolve(canvas.toDataURL(file.type));
+      const base64 = canvas.toDataURL(file.type);
+
+      // Copy exif data and set new Orientation
+      const exifObj = piexif.load(img.src);
+      exifObj["0th"][piexif.ImageIFD.Orientation] = 1;
+      const exifStr = piexif.dump(exifObj);
+      resolve(piexif.insert(exifStr, base64));
     };
 
     const fileReader = new FileReader();
