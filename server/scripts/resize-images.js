@@ -9,7 +9,7 @@ async function run() {
 
   const files = items.map(({content}) => ({path: content}));
 
-  resizeFiles(files);
+  await resizeFiles(files);
 }
 
 run()
