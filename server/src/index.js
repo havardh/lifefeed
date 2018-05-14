@@ -86,11 +86,12 @@ app.use((req, res, next) => {
 
 // Setup router
 const router = express.Router();
-router.use("/", front);
 router.use("/user", user);
 router.use("/api", passwordless.restricted());
 router.use("/api/feed", feed);
 router.use("/api/tag", tag);
+router.use(front);
+
 app.use(router);
 
 app.listen(8080, () => {
