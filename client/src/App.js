@@ -7,8 +7,9 @@ import FontAwesome from "react-fontawesome";
 
 import AddItem from "./Feed/AddItem";
 import Feed from "./Feed/Feed";
-import Tags from "./Feed/Tags";
+import AddTags from "./Feed/AddTags";
 import Image from "./Feed/Image";
+import ImageTags from "./Feed/ImageTags";
 
 function goBack() {
   window.history.back();
@@ -38,8 +39,9 @@ class App extends Component {
         <Header />
         <Route exact path="/" component={Feed} />
         <Route exact path="/add" component={AddItem} />
-        <Route exact path="/tags" component={Tags} />
-        <Route exact path="/image" component={Image} />
+        <Route exact path="/add/tags" component={AddTags} />
+        <Route exact path="/image/:id" component={Image} />
+        <Route exact path="/image/:id/tags" component={ImageTags} />
       </div>
     );
   }

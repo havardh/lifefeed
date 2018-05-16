@@ -3,7 +3,6 @@ const tag = express.Router();
 import * as Tag from "./service";
 
 tag.put("/create", (req, res) => {
-  console.log(req.body)
   Tag.create(req.body.name)
     .then(tag => {
       res.json({tag});
@@ -25,6 +24,17 @@ tag.get("/all", (req, res) => {
       res.json({err});
       res.end();
     });
+});
+
+tag.get("/popular", async (req, res) => {
+  try {
+    const tags = await Tag.popular(10);
+    res.json({tags});
+    res.end();
+  } catch (err) {
+    res.json({err});
+    res.end();
+  }
 });
 
 tag.post("/link", () => {

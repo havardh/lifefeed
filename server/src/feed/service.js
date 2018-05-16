@@ -13,22 +13,42 @@ export async function all() {
   }
 }
 
+export async function findById(id) {
+  try {
+    const res = await db.query("select id, type, content from items where id = $1", [id]);
+
+    if (res.rows.length) {
+      return res.rows[0];
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
 export async function query(tags) {
   try {
     if (!Array.isArray(tags)) {
       tags = [tags];
     }
 
-    console.log(tags);
-
     const res = await db.query(`
       select items.id, items.type, items.content
       from items
-      join items_tags on items.id = items_tags.item_id
-      join tags on items_tags.tag_id = tags.id
-      where tags.name = any ($1)
+
+      join (
+         select item_id
+         from items_tags
+         join tags on tags.id = items_tags.tag_id
+         where tags.name = any ($1)
+         group by items_tags.item_id
+         having count(1) = $2
+      ) tag_join on items.id = tag_join.item_id
+
       order by items.published_at desc
-    `, [tags]);
+    `, [tags, tags.length]);
 
     return res.rows;
   } catch (err) {
@@ -38,7 +58,6 @@ export async function query(tags) {
 }
 
 export async function create(file, {user, tags}) {
-  console.log("item", file, tags, user);
   const item = {
     id: file.filename.split('.')[0],
     type: "image",
@@ -61,14 +80,12 @@ export async function create(file, {user, tags}) {
     `, fields.map(field => item[field]));
 
     for (let tag of tags) {
-      console.log(tag);
       await Tag.link({
         tagId: tag.id,
         itemId: item.id
       });
     }
 
-    console.log("created", tags.length)
     return item;
   } catch (err) {
     console.error(err);

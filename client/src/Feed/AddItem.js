@@ -177,7 +177,7 @@ class Form extends React.Component {
 
   onChangeTags = () => {
     const {history} = this.props;
-    history.push("/tags")
+    history.push("/add/tags")
   }
 
   onClose = () => {

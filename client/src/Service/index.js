@@ -28,6 +28,14 @@ export function put({url, body, headers}) {
   }).then(redirectOn401);
 }
 
+export function del({url, body, headers}) {
+  return fetch(url, {
+    credentials: "same-origin",
+    method: "DELETE",
+    headers,
+  }).then(redirectOn401);
+}
+
 export function get(url) {
   return fetch(url, {
     credentials: "same-origin"
