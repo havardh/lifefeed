@@ -42,9 +42,9 @@ export async function popular() {
       join items_tags on tags.id = items_tags.tag_id
       group by tags.id
       order by count(items_tags.item_id) desc
+      limit 10
     `)
 
-    console.log(res.rows);
     return res.rows;
   } catch (err) {
     console.log(err);
