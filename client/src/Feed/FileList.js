@@ -1,6 +1,5 @@
-import React from "react";
-import {find, uniq, reject, some as _some, includes, every} from "lodash";
-import { Subscribe, Container } from "unstated";
+import {find, reject, some as _some, every} from "lodash";
+import { Container } from "unstated";
 import rotate from "./RotateImage";
 import resize from "./ResizeImage";
 

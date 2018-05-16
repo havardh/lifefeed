@@ -1,10 +1,8 @@
 import React from "react";
-import {Link} from "react-router-dom";
 import FontAwesome from "react-fontawesome";
 
 import Item from "./Item";
-import ShowModal from "./ShowModal";
-import AddItem from "./AddItem";
+import PopularTags from "./PopularTags";
 import * as Service from "../Service";
 
 function queryDict() {
@@ -83,10 +81,26 @@ export default class Feed extends React.Component {
     const {value} = target;
 
     if (value) {
-      this.setState({tags: value.split(' ')})
       const tags = value.split(' ');
+      this.setState({tags})
     }
   };
+
+  onClickTag = (tag) => {
+    this.setState(({tags}) => {
+      if (tags.includes(tag)) {
+        const i = tags.indexOf(tag);
+
+        return {tags: [
+          ...tags.slice(0, i),
+          ...tags.slice(i + 1)
+        ]};
+      } else {
+        return {tags: [...tags, tag]};
+      }
+    }, this.search);
+
+  }
 
   search = () => {
     const {tags} = this.state;
@@ -122,7 +136,6 @@ export default class Feed extends React.Component {
     const buttonStyle = {
       boxSizing: "border-box",
       margin: 0,
-      padding: 0,
       height: "40px",
       flex: 0,
       padding: "0px 25px"
@@ -141,6 +154,11 @@ export default class Feed extends React.Component {
             <FontAwesome name="search" />
           </button>
         </div>
+
+        <PopularTags
+          activeTags={this.state.tags}
+          onClick={this.onClickTag}
+        />
 
         <div style={{marginTop: "20px"}}>
           <FeedList items={items}/>

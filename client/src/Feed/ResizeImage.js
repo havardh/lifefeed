@@ -4,7 +4,6 @@ function resizeFile(file, maxSize) {
   return new Promise(resolve => {
   	const img = new Image();
 
-		let imgt1;
   	img.onload = function() {
     	let width = img.width,
       		height = img.height,
