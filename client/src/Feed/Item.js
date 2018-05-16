@@ -1,6 +1,4 @@
 import React from "react";
-import exif from "exif-js";
-import exif2css from "exif2css";
 import VisibilitySensor from "react-visibility-sensor";
 
 function toSrcset({sources}) {
@@ -24,7 +22,7 @@ class Item extends React.Component {
           <VisibilitySensor>
             {({isVisible}) =>
               isVisible
-                ? (item.type === "image" && <img sizes="80vw" style={imageStyle} src={item.src} srcSet={toSrcset(item)} />)
+                ? (item.type === "image" && <img alt={`Item with id ${item.id}`} sizes="80vw" style={imageStyle} src={item.src} srcSet={toSrcset(item)} />)
                 : <div style={imageStyle}>&nbsp;</div>
             }
           </VisibilitySensor>

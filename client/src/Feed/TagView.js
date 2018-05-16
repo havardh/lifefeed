@@ -29,7 +29,6 @@ const inputStyle = {
 const buttonStyle = {
   boxSizing: "border-box",
   margin: 0,
-  padding: 0,
   height: "40px",
   flex: 0,
   padding: "0px 25px"

@@ -1,11 +1,8 @@
 import React from "react";
-import {Link} from "react-router-dom";
 import FontAwesome from "react-fontawesome";
 
 import Item from "./Item";
 import PopularTags from "./PopularTags";
-import ShowModal from "./ShowModal";
-import AddItem from "./AddItem";
 import * as Service from "../Service";
 
 function queryDict() {
@@ -139,7 +136,6 @@ export default class Feed extends React.Component {
     const buttonStyle = {
       boxSizing: "border-box",
       margin: 0,
-      padding: 0,
       height: "40px",
       flex: 0,
       padding: "0px 25px"

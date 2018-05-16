@@ -1,10 +1,6 @@
 import React from "react";
-import {Link} from "react-router-dom"
-import {find} from "lodash";
-import exif from "exif-js";
-import exif2css from "exif2css";
 import "formdata-polyfill";
-import { Subscribe, Container } from "unstated";
+import { Subscribe } from "unstated";
 import FontAwesome from "react-fontawesome";
 
 import Spinner from "../Spinner";
@@ -15,16 +11,6 @@ const previewsStyle = {
   display: "grid",
   gridAutoFlow: "row",
   overflow: "hidden"
-}
-
-function toArray(files) {
-  const array = [];
-
-  for (let file of files) {
-    array.push(file);
-  }
-
-  return array;
 }
 
 function ellipsis(text) {
@@ -126,7 +112,7 @@ class Preview extends React.Component {
           {selected && <FontAwesome style={{lineHeight: "80px"}} size="2x" name="check-square" />}
           {!selected && <FontAwesome style={{lineHeight: "80px"}} size="2x" name="square" />}
         </div>
-          <img style={previewImageStyle} src={src} />
+          <img style={previewImageStyle} src={src} alt={`preview of ${src}`} />
           <TagList tags={this.props.tags || []} />
         </div>
       </div>
@@ -188,7 +174,7 @@ class Form extends React.Component {
 
   render() {
     const {fileList} = this.props;
-    const {uploading, failed} = this.state;
+    const {uploading} = this.state;
 
     const buttonStyle = {
       display: "inline-block",

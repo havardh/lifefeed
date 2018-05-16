@@ -49,7 +49,7 @@ export default class Image extends React.Component {
 
     return (
       <div style={imageWrapper}>
-        <img sizes="90vw" style={imageStyle} src={item.src} srcSet={toSrcset(item)} />
+        <img sizes="90vw" style={imageStyle} alt={`id ${item.id}`} src={item.src} srcSet={toSrcset(item)} />
         <TagLine itemId={id} history={this.props.history} />
       </div>
     );

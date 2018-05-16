@@ -1,11 +1,3 @@
-import Cookie from "js-cookie";
-
-function deleteCookie(name) {
-  Cookie.set("connect.sid", "test");
-  console.log("set", Cookie.get());
-  //document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path?';
-}
-
 function redirectOn401(result) {
   if (result.status === 401) {
     console.log("wat");

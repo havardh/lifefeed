@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Route } from "react-router";
-import logo from './logo.svg';
 import './App.css';
 import 'font-awesome/css/font-awesome.css'
 import FontAwesome from "react-fontawesome";

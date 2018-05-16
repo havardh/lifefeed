@@ -45,8 +45,9 @@ export default class PopularTags extends React.Component {
     return (
       <div style={wrapperStyle}>
         <div style={popularTagsStyle}>
-          {tags.map(({name}) => (
+          {tags.map(({id, name}) => (
             <div
+              key={id}
               style={tagStyle}
               onClick={() => onClick(name)}>
               {activeTags.includes(name) ? "-" : "+"}{name}
