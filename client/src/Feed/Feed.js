@@ -18,7 +18,6 @@ function queryDict() {
 }
 
 function createUrl(base, tags) {
-  console.log(base);
   const url = new URL(base);
 
   if (tags) {

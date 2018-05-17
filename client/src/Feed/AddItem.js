@@ -3,9 +3,11 @@ import "formdata-polyfill";
 import { Subscribe } from "unstated";
 import FontAwesome from "react-fontawesome";
 
+import PageSpinner from "./PageSpinner";
 import Spinner from "../Spinner";
 import FileListContainer from "./FileList";
 import * as Service from "../Service";
+import "./AddItem.css"
 
 const previewsStyle = {
   display: "grid",
@@ -197,7 +199,7 @@ class Form extends React.Component {
         <div style={{marginBottom: "60px"}}>
           <div style={{display: "inline-block"}}>
             <label>
-              <a style={buttonStyle}>Legg til</a>
+              <a className={uploading ? "disabled": ""} style={buttonStyle}>Legg til</a>
               <input
                 style={{display: "none"}}
                 type="file"
@@ -209,6 +211,7 @@ class Form extends React.Component {
           </div>
 
           <a
+            className={uploading ? "disabled": ""}
             style={buttonStyle}
             onClick={this.onChangeTags}
           >
@@ -228,14 +231,14 @@ class Form extends React.Component {
             ))}
           </div>
 
-          {uploading && <div><Spinner /></div>}
+          {uploading && <PageSpinner />}
         </div>
 
         <footer style={{backgroundColor: "#fff", position: "fixed", bottom: "0px", height: "60px", width: "100%"}}>
-          <a style={buttonStyle} onClick={this.onUpload}>
+          <a className={uploading ? "disabled": ""} style={buttonStyle} onClick={this.onUpload}>
             Last opp {uploading && <Spinner />}
           </a>
-          <a style={buttonStyle} onClick={this.onClose}>Avbryt</a>
+          <a className={uploading ? "disabled": ""} style={buttonStyle} onClick={this.onClose}>Avbryt</a>
         </footer>
       </div>
     );
