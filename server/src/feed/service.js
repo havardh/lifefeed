@@ -19,7 +19,12 @@ export async function all() {
 
 export async function findById(id) {
   try {
-    const res = await db.query("select id, type, content from items where id = $1", [id]);
+    const res = await db.query(`
+      select items.id, items.type, items.content, users.email
+      from items
+      join users on items.users_id = users.id
+      where items.id = $1
+      `, [id]);
 
     if (res.rows.length) {
       return res.rows[0];

@@ -67,7 +67,7 @@ export default class Image extends React.Component {
       <div style={imageWrapper}>
         <img sizes="90vw" style={imageStyle} alt={`id ${item.id}`} src={item.src} srcSet={toSrcset(item)} />
         <div>
-          <a style={buttonStyle} download={item.id} href={item.src}>Last ned</a>
+          <i>av {item.user.split("@")[0]}</i> <a style={buttonStyle} download={item.id} href={item.src}>Last ned</a>
         </div>
         <TagLine itemId={id} history={this.props.history} />
       </div>
