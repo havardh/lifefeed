@@ -18,6 +18,22 @@ const imageStyle = {
   border: "10px solid #EEE"
 };
 
+const buttonStyle = {
+  display: "inline-block",
+  cursor: "pointer",
+  backgroundColor: "#eee",
+  border: "1px solid #fff",
+  padding: "0 28px",
+  fontSize: "15px",
+  margin: "10px",
+  width: "100px",
+  height: "40px",
+  lineHeight: "40px",
+  textAlign: "center",
+  verticalAlign: "middle",
+  fontFamily: "Roboto"
+};
+
 function toSrcset({sources}) {
   return sources.map(({src, width}) => `${src} ${width}`).join(", ");
 }
@@ -50,6 +66,9 @@ export default class Image extends React.Component {
     return (
       <div style={imageWrapper}>
         <img sizes="90vw" style={imageStyle} alt={`id ${item.id}`} src={item.src} srcSet={toSrcset(item)} />
+        <div>
+          <a style={buttonStyle} download={item.id} href={item.src}>Last ned</a>
+        </div>
         <TagLine itemId={id} history={this.props.history} />
       </div>
     );
