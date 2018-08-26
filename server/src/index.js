@@ -47,7 +47,17 @@ Følg denne lenken for å logge in: ${url}
 - Håvard`,
     from: details.user,
     to: recipient,
-    subject: 'Loginlenke til lifefeed.havardh.xyz'
+    subject: 'Loginlenke til lifefeed.havardh.xyz',
+    attachment: [{
+      data: `<html>
+      <body>
+        <h2>Hei, du har trykket på login på lifefeed.havardh.xyz.</h2>
+        <p>Følg denne lenken for å logge in: <a href="${url}">${url}</a></p>
+        <i>- Håvard<i>
+      </body>
+      </html>`,
+      alternative: true
+    }]
   }, (err) => {
     if (err) {
       console.log(err);
