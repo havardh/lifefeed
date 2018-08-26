@@ -4,7 +4,11 @@ import * as Tag from "../tag/service";
 
 export async function all() {
   try {
-    const res = await db.query("select id, type, content from items order by published_at desc");
+    const res = await db.query(`
+      select items.id, items.type, items.content, users.email
+      from items
+      join users on items.users_id = users.id
+      order by published_at desc`);
 
     return res.rows;
   } catch (err) {
@@ -35,8 +39,10 @@ export async function query(tags) {
     }
 
     const res = await db.query(`
-      select items.id, items.type, items.content
+      select items.id, items.type, items.content, users.email
       from items
+
+      join users on items.users_id = users.id
 
       join (
          select item_id
@@ -48,7 +54,7 @@ export async function query(tags) {
       ) tag_join on items.id = tag_join.item_id
 
       order by items.published_at desc
-    `, [tags, tags.length]);
+      `, [tags, tags.length]);
 
     return res.rows;
   } catch (err) {
