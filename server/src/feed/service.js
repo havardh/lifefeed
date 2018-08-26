@@ -34,6 +34,8 @@ export async function query(tags) {
       tags = [tags];
     }
 
+    console.log(tags);
+
     const res = await db.query(`
       select items.id, items.type, items.content
       from items
@@ -48,7 +50,7 @@ export async function query(tags) {
       ) tag_join on items.id = tag_join.item_id
 
       order by items.published_at desc
-    `, [tags, tags.length]);
+      `, [tags, tags.length]);
 
     return res.rows;
   } catch (err) {

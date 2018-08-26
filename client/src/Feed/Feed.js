@@ -160,7 +160,7 @@ export default class Feed extends React.Component {
         />
 
         <div style={{marginTop: "20px"}}>
-          <FeedList items={items}/>
+          <FeedList items={[{type: "video", id: 1, src: "api/feed/image/20180517_131959.mp4"}, ...items]}/>
         </div>
         <Add history={this.props.history} />
       </div>

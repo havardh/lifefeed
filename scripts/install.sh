@@ -12,3 +12,6 @@ psql postgres://postgres:postgres@localhost/lifefeed < server/src/user/passwordl
 psql postgres://postgres:postgres@localhost/lifefeed < server/src/feed/items.sql
 psql postgres://postgres:postgres@localhost/lifefeed < server/src/tag/tags.sql
 psql postgres://postgres:postgres@localhost/lifefeed < server/node_modules/connect-pg-simple/table.sql
+
+
+# insert into users (email, role) values ('havardwhoiby@gmail.com', 'owner'), ('siraag@gmail.com', 'owner');
