@@ -84,11 +84,12 @@ feed.post("/image", (req, res) => {
     });
 });
 
-function imageToApi({id, type, content}) {
+function imageToApi({id, type, content, email}) {
   return {
     id,
     type,
     src: "/api/feed/image/" + content.replace("files/", ""),
+    user: email,
     sources: [512, 768, 1024, 1536, 2048]
       .map(size => ({
         width: `${size}w`,
