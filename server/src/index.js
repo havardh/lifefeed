@@ -24,7 +24,7 @@ app.use(session({
   secret: "cats",
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 30*24*60*60*1000 }
+  cookie: { maxAge: 2*365*24*60*60*1000 }
 }));
 app.use(cookieParser());
 app.use(bodyParser.json({limit: '50mb'}));
