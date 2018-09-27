@@ -19,6 +19,7 @@ class Item extends React.Component {
     };
 
     const avatarStyle = {
+      opacity: 0.8,
       width: "60px",
       height: "60px",
       borderRadius: "50%",
